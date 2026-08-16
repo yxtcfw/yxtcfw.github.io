@@ -61,19 +61,19 @@ const paginationProps = {
 			<li aria-current="page" class=""><span aria-hidden="true">#</span>{tag}</li>
 		</ul>
 	</nav>
-	<h1 class="title capitalize">{tagMeta?.data.title ?? `Posts about ${tag}`}</h1>
+	<h1 class="title capitalize">{tagMeta?.data.title ?? `标签: ${tag}`}</h1>
 	<div class="prose prose-sm prose-cactus mb-16 max-w-none">
 		{tagMeta?.data.description && <p>{tagMeta.data.description}</p>}
 		{TagContent && <TagContent />}
 	</div>
-	<ul class="space-y-4">
+	<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
 		{
 			page.data.map((p) => (
-				<li class="grid gap-1 sm:grid-cols-[auto_1fr]">
+				<div class="rounded-md border bg-global-bg p-4" style="border-color: var(--color-border); box-shadow: 0 4px 12px var(--color-shadow);">
 					<PostPreview as="h2" post={p} />
-				</li>
+				</div>
 			))
 		}
-	</ul>
+	</div>
 	<Pagination {...paginationProps} />
 </PageLayout>

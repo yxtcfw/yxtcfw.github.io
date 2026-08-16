@@ -66,6 +66,10 @@
 		accent-color: var(--color-accent);
 		scrollbar-gutter: stable;
 
+		/* 1. 定义亮色模式下的边框和阴影（作为过渡起点） */
+		--color-border: oklch(0% 0 0 / 0.1);      /* 亮色：10% 透明度的黑 */
+		--color-shadow: oklch(0% 0 0 / 0.05);     /* 亮色：5% 透明度的黑 */
+
 		&[data-theme="light"] {
 			color-scheme: light;
 		}
@@ -79,11 +83,14 @@
 			--color-accent: oklch(70.91% 0.1415 163.7);
 			--color-accent-2: oklch(94.66% 0 0);
 			--color-quote: oklch(94.8% 0.106 136.49);
+			--color-border: oklch(100% 0 0 / 0.15);    /* 暗色：15% 透明度的白 */
+			--color-shadow: oklch(100% 0 0 / 0.05);    /* 暗色：5% 透明度的白 */
 		}
 
 		--color-mode-transition-duration: 300ms;
 		--color-mode-transition-easing: ease-in-out;
 
+		/* 2. 将边框和阴影加入过渡列表 */
 		transition:
 			--color-global-bg var(--color-mode-transition-duration) var(--color-mode-transition-easing),
 			--color-global-text var(--color-mode-transition-duration) var(--color-mode-transition-easing),
@@ -91,7 +98,9 @@
 			--color-link var(--color-mode-transition-duration) var(--color-mode-transition-easing),
 			--color-accent var(--color-mode-transition-duration) var(--color-mode-transition-easing),
 			--color-accent-2 var(--color-mode-transition-duration) var(--color-mode-transition-easing),
-			--color-quote var(--color-mode-transition-duration) var(--color-mode-transition-easing);
+			--color-quote var(--color-mode-transition-duration) var(--color-mode-transition-easing),
+			--color-border var(--color-mode-transition-duration) var(--color-mode-transition-easing),
+			--color-shadow var(--color-mode-transition-duration) var(--color-mode-transition-easing);
 	}
 
 	:target {
@@ -114,6 +123,7 @@
 		max-width: 100%;
 	}
 }
+
 
 @layer components {
 	@import "./components/admonition.css";

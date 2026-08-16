@@ -1,0 +1,43 @@
+---
+// src/components/TagCloud.astro
+interface Props {
+  tags: { name: string; count: number }[];
+}
+
+const { tags } = Astro.props;
+
+// 找出最大和最小 count，用于计算缩放比例
+const maxCount = Math.max(...tags.map(t => t.count), 1);
+const minCount = Math.min(...tags.map(t => t.count), 1);
+
+// 计算单个标签的权重比例 (0 到 1 之间)
+const getWeight = (count: number) => {
+  if (maxCount === minCount) return 0.5;
+  return (count - minCount) / (maxCount - minCount);
+};
+---
+
+<div class="flex flex-wrap gap-2 items-center">
+  {tags.map(tag => {
+    const weight = getWeight(tag.count);
+    // 根据权重动态计算字号和透明度，完美适配你的 OKLCH 主题
+    const fontSize = 0.875 + weight * 0.75; // 从 0.875rem 到 1.625rem
+    const opacity = 0.6 + weight * 0.4;     // 从 60% 到 100% 透明度
+    
+    return (
+      <a
+        href={`/tags/${tag.name}`}
+        class="px-3 py-1 rounded-full border transition-all duration-300 hover:scale-105"
+        style={`
+          font-size: ${fontSize}rem; 
+          opacity: ${opacity}; 
+          border-color: var(--color-border);
+          color: var(--color-link);
+          background-color: var(--color-global-bg);
+        `}
+      >
+        {tag.name}
+      </a>
+    );
+  })}
+</div>

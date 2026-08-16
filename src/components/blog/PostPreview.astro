@@ -9,13 +9,31 @@ type Props<Tag extends HTMLTag> = Polymorphic<{ as: Tag }> & {
 };
 
 const { as: Tag = "div", post, withDesc = false } = Astro.props;
+
+// 1. 从 post.data 中安全地提取 tags，如果不存在则默认为空数组
+const tags = post.data.tags || [];
 ---
 
-<FormattedDate class="text-muted min-w-30 font-semibold" date={post.data.publishDate} />
-<Tag>
-	{post.data.draft && <span class="text-red-500">(Draft) </span>}
-	<a class="cactus-link" href={`/posts/${post.id}/`}>
-		{post.data.title}
-	</a>
+<Tag class="flex flex-col gap-2"> <!-- 2. 建议给外层 Tag 增加垂直间距，防止内容挤在一起 -->
+	<div class="flex items-center gap-2">
+		{post.data.draft && <span class="text-red-500 text-sm">(Draft)</span>}
+		<a class="cactus-link font-bold" href={`/posts/${post.id}/`}>
+			{post.data.title}
+		</a>
+	</div>
+
+	{withDesc && (
+		<q class="line-clamp-3 italic">{post.data.description}</q>
+	)}
+
+	{/* 3. 新增：渲染 Tags 列表 */}
+	{tags.length > 0 && (
+		<div class="flex flex-wrap gap-2 mt-1">
+			{tags.map((tag) => (
+				<span class="text-xs bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 px-2 py-0.5 rounded-full">
+					{tag}
+				</span>
+			))}
+		</div>
+	)}
 </Tag>
-{withDesc && <q class="line-clamp-3 italic">{post.data.description}</q>}

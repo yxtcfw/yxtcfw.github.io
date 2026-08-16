@@ -1,9 +1,9 @@
 ---
-title: "Markdown Admonitions"
+title: "站点增强·增强站点交互能力"
 description: "This post showcases using the markdown admonition feature in Astro Cactus"
 publishDate: "25 Aug 2024"
 updatedDate: "4 July 2025"
-tags: ["markdown", "admonitions"]
+tags: ["油猴", "浏览器"]
 ---
 
 ## What are admonitions
