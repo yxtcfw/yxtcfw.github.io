@@ -1,0 +1,125 @@
+---
+import "../styles/prose.css";
+
+import PageHeader from "../components/PageHeader.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { AUTHOR, SITE, SOCIAL } from "../config";
+
+const colophon = [
+  { term: "框架", value: "Astro 7，静态输出" },
+  { term: "字体", value: "Source Serif 4 · JetBrains Mono" },
+  { term: "配色", value: "墨色、宣纸、朱红" },
+  { term: "许可", value: "MIT" },
+];
+---
+
+<BaseLayout title="关于" description={AUTHOR.bio}>
+  <div class="wrap">
+    <PageHeader eyebrow="说明" title="关于" lede={AUTHOR.bio} />
+
+    <div class="about">
+      <div class="prose about__body">
+        <p>
+          {SITE.title}记录打工人创业的日常：从想法到落地，从一个人到一家企业。
+        </p>
+
+        <p>
+          这里写的是真实过程——判断、试错、节奏，以及一人企业时代里如何把事情做成。
+        </p>
+
+        <h2>站点说明</h2>
+
+        <p>
+          站点信息、导航和社交链接都在 <code>src/config.ts</code>。文章是
+          <code>src/content/blog/</code> 下的 Markdown 或 MDX 文件。
+        </p>
+
+        <p>
+          配色集中在 <code>src/styles/tokens.css</code>，明暗主题共用一套令牌。
+        </p>
+
+        <h2>链接</h2>
+
+        <ul>
+          {
+            SOCIAL.map((link) => (
+              <li>
+                <a href={link.href} rel="noopener">
+                  {link.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+
+      <aside class="about__aside">
+        <p class="tategaki about__rail" aria-hidden="true">
+          宇轩同创 — 一人企业
+        </p>
+
+        <dl class="about__colophon">
+          {
+            colophon.map((row) => (
+              <div class="about__row">
+                <dt class="label">{row.term}</dt>
+                <dd>{row.value}</dd>
+              </div>
+            ))
+          }
+        </dl>
+      </aside>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .about {
+    display: grid;
+    grid-template-columns: minmax(0, var(--width-prose)) 13rem;
+    gap: clamp(var(--space-8), 6vw, var(--space-16));
+    justify-content: center;
+    align-items: start;
+    padding-block: var(--space-12);
+  }
+
+  .about__aside {
+    display: flex;
+    gap: var(--space-6);
+  }
+
+  .about__rail {
+    height: 12rem;
+  }
+
+  .about__colophon {
+    flex: 1;
+    margin: 0;
+  }
+
+  .about__row + .about__row {
+    margin-top: var(--space-6);
+  }
+
+  .about__row dd {
+    margin: var(--space-2) 0 0;
+    font-size: var(--text-sm);
+    line-height: var(--leading-snug);
+    color: var(--color-fg-muted);
+  }
+
+  @media (max-width: 60rem) {
+    .about {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .about__aside {
+      padding-top: var(--space-8);
+      border-top: var(--rule-width) solid var(--color-rule);
+    }
+
+    .about__rail {
+      display: none;
+    }
+  }
+</style>
