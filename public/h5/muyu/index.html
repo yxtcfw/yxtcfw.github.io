@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>五行木鱼</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:"PingFang SC","Microsoft YaHei",sans-serif;
+  background:#1a1a1a;color:#e0d8c0;
+  display:flex;flex-direction:column;align-items:center;
+  min-height:100vh;padding:20px 16px;
+}
+h1{font-size:22px;margin-bottom:10px;letter-spacing:4px;color:#c8b050}
+
+/* 木鱼区域 */
+.muyu-wrap{
+  display:flex;flex-direction:column;align-items:center;
+  margin-bottom:10px;position:relative;
+}
+.muyu-icon{
+  cursor:pointer;transition:transform .08s;
+  filter:drop-shadow(0 6px 18px rgba(0,0,0,.4));
+}
+.muyu-icon:active{transform:scale(.92)}
+.muyu-icon.hit{transform:scale(.9)}
+.muyu-hint{font-size:11px;opacity:.35;margin-top:6px}
+
+/* 功德计数 - 总数 */
+.gongde-total{
+  font-size:16px;font-weight:700;color:#c8b050;
+  margin-top:4px;letter-spacing:2px;
+}
+
+/* 功德计数 - 五行分类 */
+.gongde-elements{
+  display:flex;gap:10px;margin-top:6px;flex-wrap:wrap;justify-content:center;
+}
+.gongde-el{
+  display:flex;flex-direction:column;align-items:center;
+  font-size:11px;min-width:40px;
+}
+.gongde-el .el-name{opacity:.55;margin-bottom:2px}
+.gongde-el .el-count{font-weight:700;font-size:14px}
+
+/* 乐谱输入区 */
+.input-wrap{width:100%;max-width:420px;margin-bottom:10px}
+textarea{
+  width:100%;height:72px;padding:10px;
+  background:#2a2a2a;border:1px solid #444;border-radius:8px;
+  color:#e0d8c0;font-size:14px;font-family:monospace;resize:vertical;
+}
+.btn-row{display:flex;gap:8px;margin:8px 0;flex-wrap:wrap;justify-content:center}
+button{
+  padding:8px 18px;border:none;border-radius:6px;
+  font-size:14px;cursor:pointer;transition:background .15s;
+}
+.btn-play{background:#c8b050;color:#1a1a1a}
+.btn-play:hover{background:#d8c060}
+.btn-stop{background:#555;color:#e0d8c0}
+.btn-stop:hover{background:#666}
+.btn-clear{background:#3a3a3a;color:#a08040;font-size:13px;padding:6px 14px}
+.btn-clear:hover{background:#4a4a4a}
+
+/* 定时 & 循环 */
+.controls{
+  display:flex;gap:12px;align-items:center;
+  flex-wrap:wrap;justify-content:center;margin:6px 0;
+  font-size:13px;
+}
+.controls label{display:flex;align-items:center;gap:4px;cursor:pointer}
+.controls input[type="number"]{
+  width:52px;padding:4px 6px;background:#2a2a2a;border:1px solid #444;
+  border-radius:4px;color:#e0d8c0;font-size:13px;text-align:center;
+}
+.controls input[type="checkbox"]{accent-color:#c8b050}
+
+/* 预设乐谱 */
+.presets{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin:6px 0}
+.presets button{
+  background:#333;color:#c8b050;font-size:12px;padding:5px 10px;
+}
+.presets button:hover{background:#444}
+
+/* 五行音符 */
+.keys{display:flex;gap:8px;margin:12px 0;flex-wrap:wrap;justify-content:center}
+.key{
+  width:52px;height:52px;border-radius:50%;border:2px solid;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  cursor:pointer;font-size:13px;font-weight:700;
+  transition:transform .08s,box-shadow .15s;
+  background:transparent;
+}
+.key:active{transform:scale(.88)}
+.key .label{font-size:10px;opacity:.6;margin-top:1px}
+
+/* 状态 */
+.status{font-size:12px;opacity:.4;margin:8px 0}
+
+/* 功德飘字 */
+.gongde-float{
+  position:absolute;pointer-events:none;
+  font-size:18px;font-weight:700;
+  animation:gongdeUp .9s ease-out forwards;
+  white-space:nowrap;
+}
+@keyframes gongdeUp{
+  0%  {opacity:1;transform:translateY(0) scale(1)}
+  60% {opacity:.8;transform:translateY(-40px) scale(1.1)}
+  100%{opacity:0;transform:translateY(-70px) scale(.8)}
+}
+</style>
+</head>
+<body>
+
+<h1>五行木鱼</h1>
+
+
+
+<!-- 乐谱输入 -->
+<div class="input-wrap">
+  <textarea id="scoreInput" placeholder="输入乐谱，如：1··3··5··6··5··3··1">1···3···5···5··3··1···6···5···3···1···3···5···6···1···6···5···3···2···1····3···5···6···1···3···5···2···1····1···3···5···5·3·1···6·5·3·1·3·5·6·1··5··3··2··1···3··5··6··1··3··5··2··1····</textarea>
+
+  <div class="btn-row">
+    <button class="btn-play" id="playBtn">▶ 播放</button>
+    <button class="btn-stop" id="stopBtn">■ 停止</button>
+    <button class="btn-clear" id="clearBtn">✕ 清除</button>
+  </div>
+
+  <div class="controls">
+    <label>
+      <input type="checkbox" id="loopCheck">
+      循环播放
+    </label>
+    <label>
+      <input type="checkbox" id="timerCheck">
+      定时停止
+    </label>
+    <input type="number" id="timerMin" value="5" min="1" max="120">
+    <span>分钟</span>
+  </div>
+
+  <div class="presets">
+    <button data-score="1···3···5···5··3··1···6···5···3···1···3···5···6···1···6···5···3···2···1····3···5···6···1···3···5···2···1····1···3···5···5·3·1···6·5·3·1·3·5·6·1··5··3··2··1···3··5··6··1··3··5··2··1····">静心长谱</button>
+    <button data-score="3··5··6··1··3··5··6··5··3··2··1···6··5··3··1··3··5··6··1··3··5··6··1··3·5·6·5·3·1·3·5·6·5·3·2·1··1···3···5···6···5···3···1···6··5··3··2··1····">高山流水</button>
+    <button data-score="1····3····5····6····5····3····1····">云停</button>
+    <button data-score="6···5···3···1···3···5···6···1···">月照</button>
+    <button data-score="1·····3·····5·····2·····6·····1·····6·····5·····3·····2·····1·····">无念</button>
+  </div>
+</div>
+
+<!-- 五行音符 -->
+<div class="keys" id="keys"></div>
+<div class="status" id="status"></div>
+<!-- 木鱼 + 功德计数 -->
+<div class="muyu-wrap">
+  <div class="muyu-icon" id="muyuIcon">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 210" width="300" height="210">
+  <path d="M 140 15
+           C 190 15, 230 35, 250 55
+           C 260 65, 260 70, 250 75
+           C 200 85, 120 105, 105 115
+           C 95 125, 100 135, 115 135
+           C 145 125, 200 105, 265 105
+           C 290 105, 295 125, 290 145
+           C 285 175, 255 195, 200 195
+           C 140 195, 60 185, 20 175
+           C 10 170, 5 155, 5 140
+           C 10 100, 50 30, 100 20
+           C 120 15, 130 15, 140 15 Z"
+        fill="#965229" />
+</svg>
+
+
+
+
+
+
+  </div>
+  <div class="muyu-hint">点击木鱼敲功德</div>
+  <div class="gongde-total" id="gongdeTotal">功德 0</div>
+  <div class="gongde-elements" id="gongdeElements"></div>
+</div>
+<script>
+const noteMap = {
+  '1': { freq: 261.63, name: '宫', element: '土', color: '#c8b050' },
+  '2': { freq: 293.66, name: '商', element: '金', color: '#a0a0a0' },
+  '3': { freq: 329.63, name: '角', element: '木', color: '#6aaa5a' },
+  '5': { freq: 392.00, name: '徵', element: '火', color: '#d06040' },
+  '6': { freq: 440.00, name: '羽', element: '水', color: '#5090c0' },
+};
+
+const elementOrder = ['木', '火', '土', '金', '水'];
+const elementColors = {
+  '木': '#6aaa5a',
+  '火': '#d06040',
+  '土': '#c8b050',
+  '金': '#a0a0a0',
+  '水': '#5090c0',
+};
+
+const ctx = new (window.AudioContext || window.webkitAudioContext)();
+let gongdeTotal = 0;
+let gongdeByElement = { '木': 0, '火': 0, '土': 0, '金': 0, '水': 0 };
+
+// 初始化五行分类显示
+function initElementDisplay() {
+  const container = document.getElementById('gongdeElements');
+  container.innerHTML = '';
+  elementOrder.forEach(el => {
+    const div = document.createElement('div');
+    div.className = 'gongde-el';
+    div.innerHTML = `
+      <span class="el-name" style="color:${elementColors[el]}">${el}</span>
+      <span class="el-count" id="elCount_${el}" style="color:${elementColors[el]}">0</span>
+    `;
+    container.appendChild(div);
+  });
+}
+
+function updateGongde(element) {
+  gongdeTotal++;
+  gongdeByElement[element]++;
+  document.getElementById('gongdeTotal').textContent = '功德 ' + gongdeTotal;
+  document.getElementById('elCount_' + element).textContent = gongdeByElement[element];
+}
+
+function playTone(freq) {
+  const now = ctx.currentTime;
+  const osc1 = ctx.createOscillator();
+  const gain1 = ctx.createGain();
+  const filter1 = ctx.createBiquadFilter();
+  osc1.type = 'square';
+  osc1.frequency.value = freq * 1.1;
+  filter1.type = 'lowpass';
+  filter1.frequency.value = 800 + freq * 0.6;
+  filter1.Q.value = 1.2;
+  gain1.gain.setValueAtTime(0.45, now);
+  gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+  osc1.connect(filter1).connect(gain1).connect(ctx.destination);
+  osc1.start(now);
+  osc1.stop(now + 0.12);
+
+  const osc2 = ctx.createOscillator();
+  const gain2 = ctx.createGain();
+  const filter2 = ctx.createBiquadFilter();
+  osc2.type = 'triangle';
+  osc2.frequency.value = freq * 2.3;
+  filter2.type = 'highpass';
+  filter2.frequency.value = 1200;
+  gain2.gain.setValueAtTime(0.18, now);
+  gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+  osc2.connect(filter2).connect(gain2).connect(ctx.destination);
+  osc2.start(now);
+  osc2.stop(now + 0.04);
+
+  const osc3 = ctx.createOscillator();
+  const gain3 = ctx.createGain();
+  osc3.type = 'sine';
+  osc3.frequency.value = freq * 0.95;
+  gain3.gain.setValueAtTime(0.08, now);
+  gain3.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+  osc3.connect(gain3).connect(ctx.destination);
+  osc3.start(now);
+  osc3.stop(now + 0.18);
+}
+
+function triggerHit(note) {
+  playTone(note.freq);
+
+  // 木鱼跳动
+  const muyu = document.getElementById('muyuIcon');
+  muyu.classList.add('hit');
+  setTimeout(() => muyu.classList.remove('hit'), 100);
+
+  // 对应按键高亮
+  const keyEl = document.querySelector(`.key[data-note="${Object.keys(noteMap).find(k => noteMap[k] === note)}"]`);
+  if (keyEl) {
+    keyEl.style.boxShadow = `0 0 14px ${note.color}`;
+    keyEl.style.transform = 'scale(.9)';
+    setTimeout(() => { keyEl.style.boxShadow = ''; keyEl.style.transform = ''; }, 120);
+  }
+
+  // 功德计数 + 飘字
+  updateGongde(note.element);
+  const float = document.createElement('div');
+  float.className = 'gongde-float';
+  float.textContent = `${note.element} +1`;
+  const offsetX = (Math.random() - 0.5) * 60;
+  float.style.left = `calc(50% + ${offsetX}px)`;
+  float.style.top = '10px';
+  float.style.color = note.color;
+  document.querySelector('.muyu-wrap').appendChild(float);
+  setTimeout(() => float.remove(), 900);
+}
+
+function parseScore(text) {
+  const tokens = [];
+  let i = 0;
+  while (i < text.length) {
+    if (noteMap[text[i]]) {
+      tokens.push({ type: 'note', note: noteMap[text[i]] });
+      i++;
+    } else if (text[i] === '·') {
+      let count = 0;
+      while (i < text.length && text[i] === '·') { count++; i++; }
+      tokens.push({ type: 'rest', duration: count * 0.1 });
+    } else {
+      i++;
+    }
+  }
+  return tokens;
+}
+
+let playing = false;
+let timers = [];
+let stopTimer = null;
+
+function playScore(text) {
+  stopScore();
+  if (ctx.state === 'suspended') ctx.resume();
+  const tokens = parseScore(text);
+  if (!tokens.length) return;
+  playing = true;
+
+  const isLoop = document.getElementById('loopCheck').checked;
+  const isTimer = document.getElementById('timerCheck').checked;
+  const minutes = parseInt(document.getElementById('timerMin').value) || 5;
+
+  document.getElementById('status').textContent =
+    `播放中${isLoop ? ' · 循环' : ''}${isTimer ? ' · ' + minutes + '分钟后停止' : ''}`;
+
+  if (isTimer) {
+    stopTimer = setTimeout(() => {
+      stopScore();
+      document.getElementById('status').textContent = '定时结束';
+    }, minutes * 60 * 1000);
+    timers.push(stopTimer);
+  }
+
+  function runOnce() {
+    if (!playing) return;
+    let time = 0;
+    tokens.forEach(t => {
+      const t1 = setTimeout(() => {
+        if (!playing) return;
+        if (t.type === 'note') triggerHit(t.note);
+      }, time * 1000);
+      timers.push(t1);
+      time += t.type === 'rest' ? t.duration : 0.15;
+    });
+
+    if (isLoop && playing) {
+      const end = setTimeout(() => {
+        if (playing) runOnce();
+      }, time * 1000);
+      timers.push(end);
+    } else if (!isLoop) {
+      const end = setTimeout(() => {
+        playing = false;
+        document.getElementById('status').textContent = '播放结束';
+      }, time * 1000 + 100);
+      timers.push(end);
+    }
+  }
+
+  runOnce();
+}
+
+function stopScore() {
+  playing = false;
+  timers.forEach(clearTimeout);
+  timers = [];
+  if (stopTimer) { clearTimeout(stopTimer); stopTimer = null; }
+  document.getElementById('status').textContent = '';
+}
+
+// 生成五行按键
+const keysEl = document.getElementById('keys');
+Object.entries(noteMap).forEach(([k, v]) => {
+  const btn = document.createElement('button');
+  btn.className = 'key';
+  btn.dataset.note = k;
+  btn.style.borderColor = v.color;
+  btn.style.color = v.color;
+  btn.innerHTML = `<span>${v.name}</span><span class="label">${k}·${v.element}</span>`;
+  btn.addEventListener('click', () => {
+    if (ctx.state === 'suspended') ctx.resume();
+    triggerHit(v);
+  });
+  keysEl.appendChild(btn);
+});
+
+// 播放 / 停止 / 清除
+document.getElementById('playBtn').addEventListener('click', () => {
+  playScore(document.getElementById('scoreInput').value);
+});
+document.getElementById('stopBtn').addEventListener('click', stopScore);
+document.getElementById('clearBtn').addEventListener('click', () => {
+  stopScore();
+  document.getElementById('scoreInput').value = '';
+  document.getElementById('scoreInput').focus();
+});
+
+// 预设乐谱
+document.querySelectorAll('.presets button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.getElementById('scoreInput').value = btn.dataset.score;
+  });
+});
+
+// 点击木鱼图标
+document.getElementById('muyuIcon').addEventListener('click', function () {
+  if (ctx.state === 'suspended') ctx.resume();
+  const notes = Object.values(noteMap);
+  const n = notes[Math.floor(Math.random() * notes.length)];
+  triggerHit(n);
+});
+
+// 初始化
+initElementDisplay();
+</script>
+</body>
+</html>
