@@ -3,9 +3,13 @@ import { resolve } from "node:path";
 
 import { XIAODAO } from "../config";
 
-export interface XiaodaoItem {
+export interface XiaodaoSegment {
   text: string;
   href?: string;
+}
+
+export interface XiaodaoItem {
+  segments: XiaodaoSegment[];
 }
 
 function stripFrontmatter(raw: string): string {
@@ -27,13 +31,27 @@ function sanitizeHref(href: string): string | undefined {
   return undefined;
 }
 
-function toItem(raw: string): XiaodaoItem {
-  const match = raw.match(/\[([^\]]+)\]\(([^)\s]+)(?:\s+"[^"]*")?\)/);
-  if (match) {
+export function parseXiaodaoSegments(raw: string): XiaodaoSegment[] {
+  const segments: XiaodaoSegment[] = [];
+  const pattern = /\[([^\]]+)\]\(([^)\s]+)(?:\s+"[^"]*")?\)/g;
+  let last = 0;
+  let match: RegExpExecArray | null;
+
+  while ((match = pattern.exec(raw))) {
+    if (match.index > last) {
+      segments.push({ text: raw.slice(last, match.index) });
+    }
+
     const href = sanitizeHref(match[2]);
-    return href ? { text: match[1].trim(), href } : { text: match[1].trim() };
+    segments.push(href ? { text: match[1], href } : { text: match[1] });
+    last = match.index + match[0].length;
   }
-  return { text: raw };
+
+  if (last < raw.length) {
+    segments.push({ text: raw.slice(last) });
+  }
+
+  return segments.filter((segment) => segment.text.length > 0);
 }
 
 export function parseXiaodaoItems(body: string): XiaodaoItem[] {
@@ -81,7 +99,7 @@ export function parseXiaodaoItems(body: string): XiaodaoItem[] {
         )
         .filter(Boolean);
 
-  return source.map(toItem);
+  return source.map((item) => ({ segments: parseXiaodaoSegments(item) }));
 }
 
 export async function getXiaodaoItems(): Promise<XiaodaoItem[]> {

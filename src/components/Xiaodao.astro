@@ -1,6 +1,6 @@
 ---
 import { XIAODAO } from "../config";
-import { getXiaodaoItems } from "../utils/xiaodao";
+import { getXiaodaoItems, type XiaodaoSegment } from "../utils/xiaodao";
 
 const items = await getXiaodaoItems();
 const preview = items.slice(0, XIAODAO.previewCount);
@@ -21,17 +21,19 @@ function isExternal(href: string) {
       <ul class="xiaodao__list">
         {preview.map((item) => (
           <li class="xiaodao__item">
-            {item.href ? (
-              <a
-                class="xiaodao__link"
-                href={item.href}
-                target={isExternal(item.href) ? "_blank" : undefined}
-                rel={isExternal(item.href) ? "noopener noreferrer" : undefined}
-              >
-                {item.text}
-              </a>
-            ) : (
-              item.text
+            {item.segments.map((segment: XiaodaoSegment) =>
+              segment.href ? (
+                <a
+                  class="xiaodao__link"
+                  href={segment.href}
+                  target={isExternal(segment.href) ? "_blank" : undefined}
+                  rel={isExternal(segment.href) ? "noopener noreferrer" : undefined}
+                >
+                  {segment.text}
+                </a>
+              ) : (
+                segment.text
+              ),
             )}
           </li>
         ))}
@@ -46,17 +48,19 @@ function isExternal(href: string) {
           <ul class="xiaodao__list xiaodao__list--rest">
             {rest.map((item) => (
               <li class="xiaodao__item">
-                {item.href ? (
-                  <a
-                    class="xiaodao__link"
-                    href={item.href}
-                    target={isExternal(item.href) ? "_blank" : undefined}
-                    rel={isExternal(item.href) ? "noopener noreferrer" : undefined}
-                  >
-                    {item.text}
-                  </a>
-                ) : (
-                  item.text
+                {item.segments.map((segment: XiaodaoSegment) =>
+                  segment.href ? (
+                    <a
+                      class="xiaodao__link"
+                      href={segment.href}
+                      target={isExternal(segment.href) ? "_blank" : undefined}
+                      rel={isExternal(segment.href) ? "noopener noreferrer" : undefined}
+                    >
+                      {segment.text}
+                    </a>
+                  ) : (
+                    segment.text
+                  ),
                 )}
               </li>
             ))}
@@ -111,13 +115,12 @@ function isExternal(href: string) {
   .xiaodao__link {
     color: inherit;
     text-decoration: underline;
-    text-decoration-color: var(--color-rule-strong);
+    text-decoration-color: var(--color-accent);
     text-underline-offset: 0.2em;
   }
 
   .xiaodao__link:hover {
     color: var(--color-accent);
-    text-decoration-color: currentColor;
   }
 
   .xiaodao__more {
