@@ -5,6 +5,10 @@ import { getXiaodaoItems } from "../utils/xiaodao";
 const items = await getXiaodaoItems();
 const preview = items.slice(0, XIAODAO.previewCount);
 const rest = items.slice(XIAODAO.previewCount);
+
+function isExternal(href: string) {
+  return /^https?:\/\//i.test(href);
+}
 ---
 
 {
@@ -16,7 +20,20 @@ const rest = items.slice(XIAODAO.previewCount);
 
       <ul class="xiaodao__list">
         {preview.map((item) => (
-          <li class="xiaodao__item">{item}</li>
+          <li class="xiaodao__item">
+            {item.href ? (
+              <a
+                class="xiaodao__link"
+                href={item.href}
+                target={isExternal(item.href) ? "_blank" : undefined}
+                rel={isExternal(item.href) ? "noopener noreferrer" : undefined}
+              >
+                {item.text}
+              </a>
+            ) : (
+              item.text
+            )}
+          </li>
         ))}
       </ul>
 
@@ -28,7 +45,20 @@ const rest = items.slice(XIAODAO.previewCount);
           </summary>
           <ul class="xiaodao__list xiaodao__list--rest">
             {rest.map((item) => (
-              <li class="xiaodao__item">{item}</li>
+              <li class="xiaodao__item">
+                {item.href ? (
+                  <a
+                    class="xiaodao__link"
+                    href={item.href}
+                    target={isExternal(item.href) ? "_blank" : undefined}
+                    rel={isExternal(item.href) ? "noopener noreferrer" : undefined}
+                  >
+                    {item.text}
+                  </a>
+                ) : (
+                  item.text
+                )}
+              </li>
             ))}
           </ul>
         </details>
@@ -76,6 +106,18 @@ const rest = items.slice(XIAODAO.previewCount);
     height: 4px;
     border-radius: 50%;
     background: var(--color-accent);
+  }
+
+  .xiaodao__link {
+    color: inherit;
+    text-decoration: underline;
+    text-decoration-color: var(--color-rule-strong);
+    text-underline-offset: 0.2em;
+  }
+
+  .xiaodao__link:hover {
+    color: var(--color-accent);
+    text-decoration-color: currentColor;
   }
 
   .xiaodao__more {

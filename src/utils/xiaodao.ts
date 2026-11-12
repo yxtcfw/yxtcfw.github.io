@@ -3,11 +3,40 @@ import { resolve } from "node:path";
 
 import { XIAODAO } from "../config";
 
+export interface XiaodaoItem {
+  text: string;
+  href?: string;
+}
+
 function stripFrontmatter(raw: string): string {
   return raw.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n?/, "");
 }
 
-export function parseXiaodaoItems(body: string): string[] {
+function sanitizeHref(href: string): string | undefined {
+  const value = href.trim();
+  if (!value) return undefined;
+  if (value.startsWith("/") || value.startsWith("./") || value.startsWith("../") || value.startsWith("#")) {
+    return value;
+  }
+  try {
+    const url = new URL(value);
+    if (url.protocol === "http:" || url.protocol === "https:") return value;
+  } catch {
+    return undefined;
+  }
+  return undefined;
+}
+
+function toItem(raw: string): XiaodaoItem {
+  const match = raw.match(/\[([^\]]+)\]\(([^)\s]+)(?:\s+"[^"]*")?\)/);
+  if (match) {
+    const href = sanitizeHref(match[2]);
+    return href ? { text: match[1].trim(), href } : { text: match[1].trim() };
+  }
+  return { text: raw };
+}
+
+export function parseXiaodaoItems(body: string): XiaodaoItem[] {
   const text = body.replace(/\r\n/g, "\n").trim();
   if (!text) return [];
 
@@ -38,21 +67,24 @@ export function parseXiaodaoItems(body: string): string[] {
   }
 
   if (current) listItems.push(current.trim());
-  if (listItems.length) return listItems;
 
-  return text
-    .split(/\n{2,}/)
-    .map((block) =>
-      block
-        .split("\n")
-        .filter((line) => !isHeading(line) && !isFence(line))
-        .join(" ")
-        .trim(),
-    )
-    .filter(Boolean);
+  const source = listItems.length
+    ? listItems
+    : text
+        .split(/\n{2,}/)
+        .map((block) =>
+          block
+            .split("\n")
+            .filter((line) => !isHeading(line) && !isFence(line))
+            .join(" ")
+            .trim(),
+        )
+        .filter(Boolean);
+
+  return source.map(toItem);
 }
 
-export async function getXiaodaoItems(): Promise<string[]> {
+export async function getXiaodaoItems(): Promise<XiaodaoItem[]> {
   try {
     const raw = await readFile(resolve(process.cwd(), XIAODAO.source), "utf8");
     return parseXiaodaoItems(stripFrontmatter(raw));
