@@ -72,6 +72,17 @@ export const BLOG = {
 } as const;
 
 /**
+ * Rumours shown at the top of every article body.
+ * Items are parsed from the specified markdown file's body.
+ */
+export const XIAODAO = {
+  /** Path relative to the project root. */
+  source: "src/content/xiaodao.md",
+  /** How many items to show before the rest is folded. */
+  previewCount: 3,
+} as const;
+
+/**
  * The WebGL ink simulation.
  *
  * It only ever loads on the home page, is skipped entirely when the visitor

@@ -1,0 +1,119 @@
+---
+import { XIAODAO } from "../config";
+import { getXiaodaoItems } from "../utils/xiaodao";
+
+const items = await getXiaodaoItems();
+const preview = items.slice(0, XIAODAO.previewCount);
+const rest = items.slice(XIAODAO.previewCount);
+---
+
+{
+  preview.length > 0 && (
+    <section class="xiaodao" aria-labelledby="xiaodao-heading">
+      <h2 class="xiaodao__title eyebrow" id="xiaodao-heading">
+        小道消息
+      </h2>
+
+      <ul class="xiaodao__list">
+        {preview.map((item) => (
+          <li class="xiaodao__item">{item}</li>
+        ))}
+      </ul>
+
+      {rest.length > 0 && (
+        <details class="xiaodao__more">
+          <summary class="xiaodao__toggle label">
+            <span class="xiaodao__toggle-closed">展开全部 {items.length} 条</span>
+            <span class="xiaodao__toggle-open">收起</span>
+          </summary>
+          <ul class="xiaodao__list xiaodao__list--rest">
+            {rest.map((item) => (
+              <li class="xiaodao__item">{item}</li>
+            ))}
+          </ul>
+        </details>
+      )}
+    </section>
+  )
+}
+
+<style>
+  .xiaodao {
+    margin-bottom: var(--space-12);
+    padding: var(--space-6);
+    border: var(--rule-width) solid var(--color-rule);
+    background: var(--color-bg-subtle);
+  }
+
+  .xiaodao__title {
+    margin-bottom: var(--space-4);
+  }
+
+  .xiaodao__list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .xiaodao__item {
+    position: relative;
+    padding-left: var(--space-4);
+    font-size: var(--text-sm);
+    line-height: var(--leading-snug);
+    color: var(--color-fg-muted);
+  }
+
+  .xiaodao__item + .xiaodao__item {
+    margin-top: var(--space-3);
+  }
+
+  .xiaodao__item::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.55em;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--color-accent);
+  }
+
+  .xiaodao__more {
+    margin-top: var(--space-4);
+  }
+
+  .xiaodao__list--rest {
+    margin-top: var(--space-3);
+  }
+
+  .xiaodao__toggle {
+    cursor: pointer;
+    list-style: none;
+    color: var(--color-accent);
+    user-select: none;
+  }
+
+  .xiaodao__toggle::-webkit-details-marker {
+    display: none;
+  }
+
+  .xiaodao__toggle::after {
+    content: " +";
+  }
+
+  .xiaodao__more[open] .xiaodao__toggle::after {
+    content: " −";
+  }
+
+  .xiaodao__toggle-open {
+    display: none;
+  }
+
+  .xiaodao__more[open] .xiaodao__toggle-closed {
+    display: none;
+  }
+
+  .xiaodao__more[open] .xiaodao__toggle-open {
+    display: inline;
+  }
+</style>

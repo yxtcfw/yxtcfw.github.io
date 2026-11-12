@@ -6,6 +6,7 @@ import "../styles/prose.css";
 
 import PostNav from "../components/PostNav.astro";
 import TableOfContents from "../components/TableOfContents.astro";
+import Xiaodao from "../components/Xiaodao.astro";
 import BaseLayout from "./BaseLayout.astro";
 import { BLOG, OG } from "../config";
 import { formatDate, isoDate } from "../utils/date";
@@ -95,8 +96,11 @@ const article = {
         <TableOfContents headings={headings} />
       </aside>
 
-      <div class="prose post__body">
-        <slot />
+      <div class="post__body">
+        <Xiaodao />
+        <div class="prose">
+          <slot />
+        </div>
       </div>
     </div>
 
