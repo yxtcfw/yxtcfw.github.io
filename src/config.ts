@@ -26,9 +26,9 @@ export const SITE = {
    * Set to an empty string to drop the Japanese accents entirely.
    */
   titleMark: "宇",
-  tagline: "小道消息藏机遇，AI 创作更省力。",
+  tagline: "小道消息藏机遇，AI 创作更省力。同创共享好工具，财富自由等着你。",
   description:
-    "小道消息藏机遇，AI 创作更省力。",
+    "小道消息藏机遇，AI 创作更省力。同创共享好工具，财富自由等着你。",
   /** BCP 47 language tag, written to <html lang>. */
   lang: "zh-CN",
   /** Used for og:locale. */
@@ -41,7 +41,7 @@ export const AUTHOR = {
   name: "宇轩同创",
   url: "https://github.com/yxtcfw",
   /** One or two sentences. Shown on /about and in structured data. */
-  bio: "小道消息藏机遇，AI 创作更省力。",
+  bio: "小道消息藏机遇，AI 创作更省力。同创共享好工具，财富自由等着你。",
 } as const;
 
 export const NAV: NavItem[] = [
