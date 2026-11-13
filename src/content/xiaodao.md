@@ -2,11 +2,11 @@
 title: 小道消息
 ---
 
-- 有人把 [AI 客服](/blog/notes-on-vermilion/) 接到个人品牌上，一个人撑起了原来三个人的咨询量。
-- 独立开发者把周报改成「只写这一周真正做成的事」，订阅量反而上去了。
-- 有团队把报价从项目制改成结果分成，客户更愿意先付钱。详见 [阅读节奏](/blog/reading-at-the-speed-of-paper/)。
-- 有人把闲置域名做成工具站，靠搜索流量每个月多出一笔被动收入。
-- 一位兼职创业者把所有会议压进周三下午，其余时间只做交付。
-- 有人把客户成功案例拆成短文，比官网上的功能列表更好转化。
-- 听说有人用一套提示词模板，把售前答疑压缩到十分钟内给结论。
-- 有人把产品更新日志写成故事，老用户的续费率跟着抬头。
+- [广电飞甜卡【29元230G】](https://web.haokalingqu.com/pdetails?tk=c8570adcb7030e9b&pro=1ca5b53f89089b1b)— 全国发货,叠加和权益二选一
+- 联通飞康卡【39元240G+200分钟】 https://web.haokalingqu.com/pdetails?tk=c8570adcb7030e9b&pro=3350fea21fc5a44b — 无需三照发全国,先激活后发货
+- 联通飞都卡【39元240G+200分钟】 https://web.haokalingqu.com/pdetails?tk=c8570adcb7030e9b&pro=cc3ac328501def4a — 无需三照发全国,先激活后发货
+- 联通飞超卡【39元215G+200分钟】 https://web.haokalingqu.com/pdetails?tk=c8570adcb7030e9b&pro=9e97e1395d3cfe48 — 无需三照发全国,链接上传认证信息收到卡再激活
+- 联通飞限卡【39元215G+200分钟】 https://web.haokalingqu.com/pdetails?tk=c8570adcb7030e9b&pro=0e1ba53dedcc5ac6 — 无需三照发全国,链接上传认证信息收到卡再激活
+- 联通飞特卡【39元200G+300分钟】 https://web.haokalingqu.com/pdetails?tk=c8570adcb7030e9b&pro=63ca5d2dcd015b2b — 先激活后发货,激活时传公安码+一证通,发全国
+- 广电飞花卡3.0【29元192G】 https://web.haokalingqu.com/pdetails?tk=c8570adcb7030e9b&pro=3bc1c6eead648fab — 菜鸟上门激活,长期29元,禁区少
+- 广电飞润卡【39元60G】 https://web.haokalingqu.com/pdetails?tk=c8570adcb7030e9b&pro=206a38ee472178d5 — 收货地归属地
