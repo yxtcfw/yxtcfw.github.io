@@ -25,9 +25,8 @@ export const SITE = {
    * Short Japanese mark used for the vertical rail and the loading screen.
    * Set to an empty string to drop the Japanese accents entirely.
    */
-  titleMark: "宇",
-  tagline1: "小道消息藏机遇，AI 创作更省力。",
-  tagline2: "同创共享好工具，财富自由等着你。",
+  titleMark: "宇轩",
+  tagline: "小道消息藏机遇，AI 创作更省力。同创共享好工具，财富自由等着你。",
   description:
     "小道消息藏机遇，AI 创作更省力。同创共享好工具，财富自由等着你。",
   /** BCP 47 language tag, written to <html lang>. */
