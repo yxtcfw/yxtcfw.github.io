@@ -6,17 +6,47 @@ import { BLOG, INK, SITE } from "../config";
 import { getPublishedPosts } from "../utils/posts";
 
 const posts = (await getPublishedPosts()).slice(0, BLOG.postsOnHome);
+
+const cards = [
+  {
+    title: "小道消息藏机遇",
+    desc: "信息差就是利润差，把风声变成先手。",
+    href: "/opportunities/",
+  },
+  {
+    title: "智能创作更省力",
+    desc: "AI 辅助写作与设计，一个人也能高产。",
+    href: "/ai-tools/",
+  },
+  {
+    title: "同创共享好工具",
+    desc: "沉淀可复用的工具与流程，开放共享。",
+    href: "/tools/",
+  },
+  {
+    title: "财富自由等着你",
+    desc: "从副业到一人企业，慢慢把路走宽。",
+    href: "/journey/",
+  },
+];
 ---
 
 <BaseLayout overlayHeader>
   <FluidInk variant="hero" enabled={INK.hero}>
     <div class="hero">
-      <p class="hero__eyebrow">一人企业日记</p>
-      <h1 class="hero__title">{SITE.title}</h1>
-      <p class="hero__lede">{SITE.tagline}</p>
-      <p class="hero__cta">
-        <a href="/blog/">阅读文章 ↓</a>
-      </p>
+      
+
+      <div class="hero__cards">
+        {
+          cards.map((card) => (
+            <a class="card" href={card.href}>
+              <span class="card__title">{card.title}</span>
+              <span class="card__desc">{card.desc}</span>
+              <span class="card__more">进入 →</span>
+            </a>
+          ))
+        }
+      </div>
     </div>
 
     {
@@ -93,25 +123,64 @@ const posts = (await getPublishedPosts()).slice(0, BLOG.postsOnHome);
     color: var(--color-fg-muted);
   }
 
-  .hero__cta a {
-    display: inline-block;
-    padding: var(--space-3) var(--space-6);
-    border: var(--rule-width) solid var(--color-accent);
-    border-radius: var(--radius);
-    font-family: var(--font-mono);
-    font-size: var(--text-sm);
-    letter-spacing: var(--tracking-label);
-    text-transform: uppercase;
-    text-decoration: none;
-    color: var(--color-accent);
-    transition:
-      background var(--duration-fast) var(--ease-out),
-      color var(--duration-fast) var(--ease-out);
+  /* 4 张卡片 */
+  .hero__cards {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--space-4);
+    width: 100%;
+    max-width: 60rem;
+    margin-top: var(--space-4);
   }
 
-  .hero__cta a:hover {
-    background: var(--color-accent);
-    color: var(--color-accent-fg);
+  .card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    padding: var(--space-6) var(--space-4);
+    border: var(--rule-width) solid var(--color-rule);
+    border-radius: var(--radius);
+    background: color-mix(in srgb, var(--color-bg) 70%, transparent);
+    text-align: left;
+    text-decoration: none;
+    color: inherit;
+    transition:
+      border-color var(--duration-fast) var(--ease-out),
+      transform var(--duration-fast) var(--ease-out),
+      background var(--duration-fast) var(--ease-out);
+  }
+
+  .card:hover {
+    border-color: var(--color-accent);
+    transform: translateY(-2px);
+    background: color-mix(in srgb, var(--color-accent) 8%, var(--color-bg));
+  }
+
+  .card__title {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    letter-spacing: var(--tracking-label);
+    color: var(--color-accent);
+  }
+
+  .card__desc {
+    flex: 1;
+    font-size: var(--text-sm);
+    line-height: 1.6;
+    color: var(--color-fg-muted);
+  }
+
+  .card__more {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--color-fg-faint);
+  }
+
+  .card:hover .card__more {
+    color: var(--color-accent);
   }
 
   .hero__rail {
@@ -121,9 +190,6 @@ const posts = (await getPublishedPosts()).slice(0, BLOG.postsOnHome);
     translate: 0 -50%;
   }
 
-  /* These describe the simulation, so they only appear once it has actually
-     started — not when it declined for reduced motion or missing WebGL2. The
-     element tags itself with data-ink-active on boot. */
   .hero__notes {
     display: none;
     position: absolute;
@@ -173,11 +239,19 @@ const posts = (await getPublishedPosts()).slice(0, BLOG.postsOnHome);
     .hero__notes-mid {
       display: none;
     }
+
+    .hero__cards {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
   }
 
   @media (max-width: 34rem) {
     :global(.ink:has([data-ink-active])) .hero__notes {
       display: none;
+    }
+
+    .hero__cards {
+      grid-template-columns: 1fr;
     }
   }
 </style>
