@@ -2,8 +2,7 @@
  * Sumi — site configuration
  *
  * This is the only file you need to edit to make the theme yours. Everything
- * else reads from here: metadata, navigation, feeds, OG images and the ink
- * simulation on the home page.
+ * else reads from here: metadata, navigation, feeds and OG images.
  */
 
 export interface NavItem {
@@ -80,24 +79,6 @@ export const XIAODAO = {
   source: "src/content/xiaodao.md",
   /** How many items to show before the rest is folded. */
   previewCount: 3,
-} as const;
-
-/**
- * The WebGL ink simulation.
- *
- * It only ever loads on the home page, is skipped entirely when the visitor
- * prefers reduced motion or the browser lacks WebGL2, and pauses when scrolled
- * out of view. Turn both flags off for a completely JavaScript-free site.
- */
-export const INK = {
-  /** Full-bleed ink behind the hero. */
-  hero: true,
-  /** Narrow ink band used as a section transition. */
-  divider: true,
-  /** Density of each ink splat. Sensible range is 0.3 – 2.5. */
-  strength: 1,
-  /** Let the ink drift on its own instead of only reacting to the cursor. */
-  autoFlow: true,
 } as const;
 
 /** Generate a per-article OG image at build time with satori. */

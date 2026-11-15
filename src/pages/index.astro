@@ -1,8 +1,7 @@
 ---
-import FluidInk from "../components/FluidInk.astro";
 import PostCard from "../components/PostCard.astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
-import { BLOG, INK, SITE } from "../config";
+import { BLOG, SITE } from "../config";
 import { getPublishedPosts } from "../utils/posts";
 
 const posts = (await getPublishedPosts()).slice(0, BLOG.postsOnHome);
@@ -16,7 +15,7 @@ const cards = [
   {
     title: "智能创作更省力",
     desc: "AI 辅助写作与设计，一个人也能高产。",
-    href: "/ai-tools/",
+    href: "/blog/ai-tools/",
   },
   {
     title: "同创共享好工具",
@@ -32,21 +31,17 @@ const cards = [
 ---
 
 <BaseLayout overlayHeader>
-  <FluidInk variant="hero" enabled={INK.hero}>
-    <div class="hero">
-      
-
-      <div class="hero__cards">
-        {
-          cards.map((card) => (
-            <a class="card" href={card.href}>
-              <span class="card__title">{card.title}</span>
-              <span class="card__desc">{card.desc}</span>
-              <span class="card__more">进入 →</span>
-            </a>
-          ))
-        }
-      </div>
+  <section class="hero">
+    <div class="hero__cards">
+      {
+        cards.map((card) => (
+          <a class="card" href={card.href}>
+            <span class="card__title">{card.title}</span>
+            <span class="card__desc">{card.desc}</span>
+            <span class="card__more">进入 →</span>
+          </a>
+        ))
+      }
     </div>
 
     {
@@ -56,17 +51,7 @@ const cards = [
         </p>
       )
     }
-
-    {
-      INK.hero && (
-        <p class="hero__notes" aria-hidden="true">
-          <span>墨迹模拟 / WebGL2</span>
-          <span class="hero__notes-mid">向下滚动 ↓</span>
-          <span>移动指针，搅动墨迹</span>
-        </p>
-      )
-    }
-  </FluidInk>
+  </section>
 
   <section class="section wrap">
     <div class="latest__head">
@@ -79,19 +64,16 @@ const cards = [
     </div>
   </section>
 
-  {
-    INK.divider && (
-      <FluidInk variant="divider" strength={INK.strength * 0.7}>
-        <p class="divider__label label">宇 — 打工人创业实录</p>
-      </FluidInk>
-    )
-  }
+  <div class="divider">
+    <p class="divider__label label">宇 — 打工人创业实录</p>
+  </div>
 </BaseLayout>
 
 <style>
   .hero {
+    position: relative;
     display: flex;
-    flex: 1;
+    min-height: min(100svh, 46rem);
     flex-direction: column;
     align-items: center;
     justify-content: center;
@@ -190,24 +172,6 @@ const cards = [
     translate: 0 -50%;
   }
 
-  .hero__notes {
-    display: none;
-    position: absolute;
-    inset-inline: var(--gutter);
-    bottom: var(--space-6);
-    justify-content: space-between;
-    gap: var(--space-4);
-    font-family: var(--font-mono);
-    font-size: var(--text-xs);
-    letter-spacing: var(--tracking-label);
-    text-transform: uppercase;
-    color: var(--color-fg-faint);
-  }
-
-  :global(.ink:has([data-ink-active])) .hero__notes {
-    display: flex;
-  }
-
   .latest__head {
     display: flex;
     align-items: baseline;
@@ -229,14 +193,22 @@ const cards = [
     border-bottom: none;
   }
 
+  .divider {
+    display: flex;
+    height: 15rem;
+    align-items: center;
+    justify-content: center;
+    border-block: var(--rule-width) solid var(--color-rule);
+    background: var(--color-bg-subtle);
+  }
+
   .divider__label {
     margin: auto;
     text-align: center;
   }
 
   @media (max-width: 55rem) {
-    .hero__rail,
-    .hero__notes-mid {
+    .hero__rail {
       display: none;
     }
 
@@ -246,7 +218,7 @@ const cards = [
   }
 
   @media (max-width: 34rem) {
-    :global(.ink:has([data-ink-active])) .hero__notes {
+    .hero__rail {
       display: none;
     }
 
