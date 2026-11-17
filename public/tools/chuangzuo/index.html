@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>联想词挖掘助手</title>
+<script src="./wordcloud.js"></script>
+
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 1.5rem 1rem;
+    color: #333;
+  }
+  h2 { margin: 0 0 1rem; }
+  .panel {
+    background: #fafafa;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+  }
+  .row {
+    display: flex;
+    gap: .5rem;
+    margin-bottom: .75rem;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .row label {
+    font-weight: 600;
+    min-width: 72px;
+    padding-top: .45rem;
+  }
+  textarea, input[type=text], select {
+    flex: 1;
+    min-width: 200px;
+    padding: .45rem .6rem;
+    font-size: .95rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  textarea { height: 80px; resize: vertical; }
+  .engines {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .4rem 1rem;
+  }
+  .engines label { font-weight: normal; cursor: pointer; }
+  button {
+    padding: .45rem 1rem;
+    border: none;
+    border-radius: 4px;
+    background: #4f8cff;
+    color: #fff;
+    cursor: pointer;
+    font-size: .95rem;
+  }
+  button:hover { background: #3a7bff; }
+  button.secondary {
+    background: #fff;
+    color: #4f8cff;
+    border: 1px solid #4f8cff;
+  }
+  button.secondary:hover { background: #f0f5ff; }
+  #progress {
+    height: 4px;
+    background: #eee;
+    border-radius: 2px;
+    margin: .75rem 0;
+    overflow: hidden;
+  }
+  #progress > div {
+    height: 100%;
+    background: #4f8cff;
+    width: 0;
+    transition: width .25s;
+    border-radius: 2px;
+  }
+  #status {
+    font-size: .85rem;
+    color: #666;
+    min-height: 1.2em;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: .85rem;
+    margin-top: .5rem;
+  }
+  th, td {
+    border: 1px solid #e8e8e8;
+    padding: .35rem .5rem;
+    text-align: left;
+  }
+  th { background: #f5f5f5; position: sticky; top: 0; }
+  td.num { text-align: right; color: #888; }
+  .src {
+    display: inline-block;
+    padding: 0 4px;
+    margin: 1px;
+    background: #e8f0ff;
+    border-radius: 3px;
+    font-size: .75rem;
+  }
+  #cloud { min-height: 200px; }
+  .actions {
+    display: flex;
+    gap: .5rem;
+    flex-wrap: wrap;
+    margin: .75rem 0;
+  }
+  .hint { font-size: .8rem; color: #999; margin-top: .25rem; }
+
+  /* 历史记录 */
+  .history-list {
+    display: flex;
+    gap: .5rem;
+    flex-wrap: wrap;
+    margin-top: .5rem;
+  }
+  .history-tag {
+    padding: .3rem .6rem;
+    background: #e8f0ff;
+    border-radius: 4px;
+    font-size: .85rem;
+    cursor: pointer;
+    border: 1px solid #cdd9ff;
+  }
+  .history-tag:hover { background: #cdd9ff; }
+
+  /* 折叠面板 */
+  .result-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+  }
+  .result-header:hover { opacity: .85; }
+  #resultBody { margin-top: .75rem; }
+</style>
+</head>
+<body>
+
+<h2> 搜索联想词挖掘<a href="./联想词数据管道 v3.4-3.4.js">【脚本安装】</a></h2>
+
+<!-- 历史记录面板 -->
+<div class="panel">
+  <div style="display:flex; justify-content:space-between; align-items:center;">
+    <div style="font-weight:600;"> 历史记录（点击恢复）</div>
+    <button class="secondary" id="clearHistory" style="padding:.2rem .6rem; font-size:.8rem;">清空历史</button>
+  </div>
+  <div class="history-list" id="historyList">
+    <span style="color:#aaa; font-size:.85rem;">暂无记录</span>
+  </div>
+</div>
+
+<!-- 输入面板 -->
+<div class="panel">
+  <div class="row">
+    <label>核心词</label>
+    <input id="cores" type="text" placeholder="多个词用逗号或换行分隔，如 耳机,键盘">
+  </div>
+  <div class="row">
+    <label>修饰词</label>
+    <textarea id="mods" placeholder="每行一个，如&#10;哪个牌子好&#10;推荐2026"></textarea>
+  </div>
+  <div class="hint">核心词 × 修饰词做笛卡尔积；不填修饰词则只采核心词本身。</div>
+</div>
+
+<!-- 平台选择 -->
+<div class="panel">
+  <div style="font-weight:600;margin-bottom:.5rem">采集平台</div>
+  <div class="engines" id="engineChecks"></div>
+</div>
+
+<!-- 操作栏 -->
+<div class="row actions">
+  <button id="go">开始采集</button>
+  <select id="searchEngine">
+    <option value="baidu">百度搜索</option>
+    <option value="bing">必应搜索</option>
+    <option value="google">Google</option>
+    <option value="so">360搜索</option>
+    <option value="sogou">搜狗搜索</option>
+  </select>
+  <button class="secondary" id="exportCsv">导出 CSV</button>
+  <button class="secondary" id="copyAll">复制全部</button>
+</div>
+
+<div id="progress"><div></div></div>
+<div id="status"></div>
+
+<!-- 词云（始终显示） -->
+<div class="panel" id="cloudPanel" style="display:none;">
+  <h3 style="margin:0 0 .5rem">词云（点击按右侧引擎跳转）</h3>
+  <div id="cloud" style="min-height:220px;"></div>
+</div>
+
+<!-- 表格（可折叠） -->
+<div class="panel" id="tablePanel" style="display:none;">
+  <div class="result-header" onclick="toggleTable()">
+    <div style="font-weight:600;"> 关键词表格（点击展开/折叠）</div>
+    <span id="tableIcon">▼</span>
+  </div>
+  <div id="tableBody">
+    <table id="tbl">
+      <thead><tr><th>#</th><th>关键词</th><th>平台数</th><th>来源</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</div>
+
+
+<script>
+const MSG_TYPE = 'SUG_FETCH';
+const STORAGE_KEY = 'sug_miner_data';
+
+const ENGINES = [
+  ['baidu','百度'],['baidu_sugrec','百度推荐'],['bing','必应'],
+  ['so360','360'],['qq','搜狗'],['taobao','淘宝'],
+  ['bilibili','B站'],['douyin','抖音'],
+];
+
+const SEARCH_TEMPLATES = {
+  baidu:  'https://www.baidu.com/s?wd={q}',
+  bing:   'https://cn.bing.com/search?q={q}',
+  google: 'https://www.google.com/search?q={q}',
+  so:     'https://www.so.com/s?q={q}',
+  sogou:  'https://www.sogou.com/web?query={q}',
+};
+
+// ========== 初始化引擎复选框 ==========
+const checksEl = document.getElementById('engineChecks');
+ENGINES.forEach(([k, label]) => {
+  checksEl.innerHTML +=
+    `<label><input type="checkbox" class="engine-cb" value="${k}" checked> ${label}</label>`;
+});
+
+let allWords = [];
+let reqId = 0;
+let cloudChart = null;
+
+// ========== 本地存储 ==========
+function loadData() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || { history: [], inputs: {} }; }
+  catch { return { history: [], inputs: {} }; }
+}
+function saveData(data) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+function restoreInputs() {
+  const data = loadData();
+  if (data.inputs.cores)   document.getElementById('cores').value = data.inputs.cores;
+  if (data.inputs.mods)    document.getElementById('mods').value = data.inputs.mods;
+  if (data.inputs.engine)  document.getElementById('searchEngine').value = data.inputs.engine;
+  if (data.inputs.checks) {
+    document.querySelectorAll('.engine-cb').forEach(cb => {
+      cb.checked = data.inputs.checks.includes(cb.value);
+    });
+  }
+  renderHistory();
+}
+
+function saveInputs() {
+  const data = loadData();
+  data.inputs = {
+    cores:  document.getElementById('cores').value,
+    mods:   document.getElementById('mods').value,
+    engine: document.getElementById('searchEngine').value,
+    checks: [...document.querySelectorAll('.engine-cb:checked')].map(c => c.value),
+  };
+  saveData(data);
+}
+
+function renderHistory() {
+  const listEl = document.getElementById('historyList');
+  const data = loadData();
+  if (!data.history || data.history.length === 0) {
+    listEl.innerHTML = '<span style="color:#aaa; font-size:.85rem;">暂无记录</span>';
+    return;
+  }
+  listEl.innerHTML = data.history.map((h, i) =>
+    `<span class="history-tag" data-idx="${i}">${h.keyword}（${h.time}）</span>`
+  ).join('');
+}
+
+// 自动保存输入
+['cores', 'mods', 'searchEngine'].forEach(id => {
+  document.getElementById(id).addEventListener('input', saveInputs);
+});
+checksEl.addEventListener('change', saveInputs);
+
+// 点击历史恢复
+// 点击历史恢复那段改成：
+document.getElementById('historyList').addEventListener('click', (e) => {
+  const idx = e.target.dataset.idx;
+  if (idx === undefined) return;
+  const data = loadData();
+  const h = data.history[idx];
+  allWords = h.words;
+  renderTable(allWords);
+  renderCloud(allWords.slice(0, 80));
+  document.getElementById('cloudPanel').style.display = 'block';
+  document.getElementById('tablePanel').style.display = 'block';
+  document.getElementById('tableBody').style.display = 'none';
+  document.getElementById('tableIcon').textContent = '▶';
+  document.getElementById('status').textContent = `已恢复历史：${h.keyword}`;
+});
+
+
+document.getElementById('clearHistory').onclick = () => {
+  const data = loadData();
+  data.history = [];
+  saveData(data);
+  renderHistory();
+};
+
+// ========== 折叠面板 ==========
+function toggleTable() {
+  const body = document.getElementById('tableBody');
+  const icon = document.getElementById('tableIcon');
+  if (body.style.display === 'none') {
+    body.style.display = 'block';
+    icon.textContent = '▼';
+  } else {
+    body.style.display = 'none';
+    icon.textContent = '▶';
+  }
+}
+
+
+// ========== 核心业务 ==========
+function parseLines(el) {
+  return el.value.split(/[,，\n]+/).map(s => s.trim()).filter(Boolean);
+}
+
+document.getElementById('go').onclick = () => {
+  const cores = parseLines(document.getElementById('cores'));
+  const mods  = parseLines(document.getElementById('mods'));
+  const engines = [...document.querySelectorAll('.engine-cb:checked')].map(i => i.value);
+
+  if (!cores.length)  return alert('请输入核心词');
+  if (!engines.length) return alert('至少选一个平台');
+
+  allWords = [];
+  renderTable([]);
+  if (cloudChart) { cloudChart.dispose(); cloudChart = null; }
+  document.getElementById('cloud').innerHTML = '';
+  const bar = document.querySelector('#progress > div');
+  bar.style.width = '0%';
+  bar.style.background = '#4f8cff';
+  document.getElementById('status').textContent = '准备中...';
+
+  const id = ++reqId;
+  window.postMessage({ type: MSG_TYPE, id, cores, modifiers: mods, engines }, '*');
+
+  const handler = (e) => {
+    if (e.data.type === MSG_TYPE + '_PROGRESS' && e.data.id === id) {
+      bar.style.width = e.data.progress + '%';
+      document.getElementById('status').textContent = `采集中... ${e.data.progress}%`;
+    }
+    if (e.data.type === MSG_TYPE + '_OK' && e.data.id === id) {
+      bar.style.width = '100%';
+      const total = Object.values(e.data.results).flat().length;
+      document.getElementById('status').textContent =
+        `完成！组合 ${e.data.combos} 组，共 ${total} 条联想词`;
+      setTimeout(() => { bar.style.width = '0'; }, 600);
+      aggregate(e.data.results);
+
+      // 存入历史
+      const data = loadData();
+      data.history.unshift({
+        keyword: cores.join(','),
+        time: new Date().toLocaleTimeString(),
+        words: allWords,
+      });
+      if (data.history.length > 10) data.history.pop();
+      saveData(data);
+      renderHistory();
+
+      window.removeEventListener('message', handler);
+    }
+  };
+  window.addEventListener('message', handler);
+};
+
+function aggregate(results) {
+  const map = {};
+  for (const [engine, words] of Object.entries(results)) {
+    for (const w of words) {
+      if (!map[w]) map[w] = { word: w, count: 0, sources: [] };
+      map[w].count++;
+      map[w].sources.push(engine);
+    }
+  }
+  allWords = Object.values(map).sort((a, b) => b.count - a.count);
+  renderTable(allWords);
+  wordCloud.render(allWords.slice(0, 80));  // 修复：调用实例的 render 方法
+
+  // 词云面板始终显示
+  document.getElementById('cloudPanel').style.display = 'block';
+  // 表格面板显示但内容折叠
+  document.getElementById('tablePanel').style.display = 'block';
+  document.getElementById('tableBody').style.display = 'none';
+  document.getElementById('tableIcon').textContent = '▶';
+}
+
+
+function renderTable(list) {
+  const tbody = document.querySelector('#tbl tbody');
+  if (!list.length) {
+    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#aaa">暂无数据</td></tr>';
+    return;
+  }
+  tbody.innerHTML = list.map((x, i) => `<tr>
+    <td>${i + 1}</td><td>${x.word}</td>
+    <td class="num">${x.count}</td>
+    <td>${x.sources.map(s => `<span class="src">${s}</span>`).join('')}</td>
+  </tr>`).join('');
+}
+
+// 创建词云实例（放在 aggregate 之前即可）
+const wordCloud = new WordCloud('cloud', {
+  maxFont: 48,
+  minFont: 14,
+  height: 260,
+  onWordClick: (word) => {
+    const engine = document.getElementById('searchEngine').value;
+    const url = SEARCH_TEMPLATES[engine].replace('{q}', encodeURIComponent(word));
+    window.open(url, '_blank');
+  },
+});
+// 注意：不需要在这里额外调用 wordCloud.render(words)，渲染统一由 aggregate 触发
+
+
+// 导出 CSV
+document.getElementById('exportCsv').onclick = () => {
+  if (!allWords.length) return alert('暂无数据');
+  const csv =
+    '\uFEFF关键词,平台数,来源\n' +
+    allWords.map(x => `"${x.word}",${x.count},"${x.sources.join(';')}"`).join('\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+  a.download = '联想词.csv';
+  a.click();
+};
+
+// 复制全部
+document.getElementById('copyAll').onclick = () => {
+  if (!allWords.length) return alert('暂无数据');
+  navigator.clipboard
+    .writeText(allWords.map(x => x.word).join('\n'))
+    .then(() => alert('已复制 ' + allWords.length + ' 条'));
+};
+
+// 页面加载时恢复状态
+restoreInputs();
+</script>
+</body>
+</html>

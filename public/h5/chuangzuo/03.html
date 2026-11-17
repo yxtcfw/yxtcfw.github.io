@@ -1,0 +1,1424 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>内容采集工作台 · 关键词 + 文章搜索</title>
+<style>
+  :root{
+    --bg:#f4f5f8; --card:#fff; --ink:#1f2430; --ink2:#5b6473; --ink3:#8b93a3;
+    --line:#e4e7ee; --brand:#4f46e5; --brand-soft:#eef0ff; --ok:#16a34a; --warn:#d97706; --bad:#dc2626;
+    --radius:14px; --shadow:0 1px 2px rgba(17,24,39,.05),0 8px 24px rgba(17,24,39,.06);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:14px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+  .top{background:linear-gradient(120deg,#111827,#1f2937 60%,#312e81);color:#fff;padding:18px 22px}
+  .top .wrap{max-width:1180px;margin:0 auto;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  .top h1{font-size:17px;margin:0;font-weight:650;letter-spacing:.3px}
+  .top .sub{font-size:12px;color:#c3c9d6;margin-left:2px}
+  .pill{margin-left:auto;display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.1);
+    border:1px solid rgba(255,255,255,.16);padding:5px 12px;border-radius:999px;font-size:12px}
+  .dot{width:8px;height:8px;border-radius:50%;background:#f87171;box-shadow:0 0 0 3px rgba(248,113,113,.18)}
+  .dot.on{background:#34d399;box-shadow:0 0 0 3px rgba(52,211,153,.2)}
+  main{max-width:1180px;margin:18px auto 40px;padding:0 16px;display:flex;flex-direction:column;gap:16px}
+  .tabs{display:flex;gap:8px;flex-wrap:wrap;position:sticky;top:0;z-index:6;background:var(--bg);padding:10px 0 8px;margin:-10px 0 0}
+  .tabs button{border:1px solid var(--line);background:#fff;color:var(--ink2);border-radius:999px;
+    padding:9px 18px;font-size:13.5px;cursor:pointer;transition:.15s;font-weight:600}
+  .tabs button:hover{border-color:#c9cedb;background:#f7f8fb}
+  .tabs button.on{background:var(--brand);border-color:var(--brand);color:#fff;
+    box-shadow:0 4px 14px rgba(79,70,229,.24)}
+  .view{display:none;flex-direction:column;gap:16px}
+  .view.on{display:flex}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+  .card>.head{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line);
+    background:linear-gradient(180deg,#fcfcfe,#f8f9fc)}
+  .card>.head h2{font-size:14px;margin:0;font-weight:650}
+  .tag{font-size:11px;color:var(--ink3);background:#f1f2f7;border:1px solid var(--line);padding:2px 8px;border-radius:6px}
+  .card>.body{padding:14px 16px}
+  .grow{margin-left:auto;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  textarea{width:100%;border:1px solid var(--line);border-radius:10px;padding:11px 12px;resize:vertical;
+    font:13px/1.7 ui-monospace,SFMono-Regular,Menlo,Consolas,"Courier New",monospace;color:var(--ink);background:#fcfcfe}
+  textarea:focus,input:focus,select:focus{outline:2px solid var(--brand-soft);border-color:var(--brand)}
+  #ac-knowledge{min-height:max(420px,calc(100vh - 320px))}
+  #prompt{min-height:max(340px,calc(100vh - 380px))}
+  #mods{min-height:76px}
+  .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .row+.row{margin-top:10px}
+  .row .lb{font-size:12.5px;color:var(--ink2);font-weight:600;min-width:52px}
+  input[type=text]{flex:1;min-width:220px;border:1px solid var(--line);border-radius:10px;padding:9px 12px;font-size:13px;background:#fcfcfe}
+  button{border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:10px;padding:8px 13px;
+    font-size:13px;cursor:pointer;transition:.15s;white-space:nowrap}
+  button:hover{border-color:#c9cedb;background:#f7f8fb}
+  button:active{transform:translateY(1px)}
+  button.primary{background:var(--brand);border-color:var(--brand);color:#fff;font-weight:600}
+  button.primary:hover{background:#4338ca}
+  button:disabled{opacity:.55;cursor:not-allowed}
+  button.ghost{background:transparent}
+  button.tiny{padding:5px 10px;font-size:12px;border-radius:8px}
+  select{border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:12px;background:#fff;color:var(--ink2)}
+  .presets{display:flex;flex-wrap:wrap;gap:8px}
+  .presets button{border-radius:999px;padding:7px 14px;font-size:12.5px;background:var(--brand-soft);
+    border-color:#dfe2ff;color:#3730a3}
+  .presets button:hover{background:#e3e6ff}
+  .presets button.act{background:var(--brand);border-color:var(--brand);color:#fff}
+  .hint{font-size:12px;color:var(--ink3);margin-top:8px}
+  .hint code{background:#f1f2f7;padding:1px 5px;border-radius:5px;color:#3730a3;font-size:11.5px}
+  .engines{display:flex;flex-wrap:wrap;gap:6px}
+  .engines label{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;color:var(--ink2);
+    border:1px solid var(--line);border-radius:999px;padding:6px 12px;cursor:pointer;background:#fcfcfe;transition:.15s}
+  .engines label:hover{border-color:#c9cedb}
+  .engines input{accent-color:var(--brand)}
+  .engines label.off{opacity:.5}
+  .bar{height:4px;background:#eef0f5;border-radius:3px;overflow:hidden;width:110px}
+  .bar i{display:block;height:100%;width:0;background:var(--brand);transition:.3s}
+  .st{font-size:12px;color:var(--ink2)}
+  .st.ok{color:var(--ok)} .st.bad{color:var(--bad)} .st.warn{color:var(--warn)}
+  .result{margin-top:12px;border:1px solid var(--line);border-radius:10px;background:#fcfcfe;display:none}
+  .result.show{display:block}
+  .result .rhead{display:flex;align-items:center;gap:8px;padding:9px 12px;border-bottom:1px solid var(--line);font-size:12px;color:var(--ink2)}
+  .rlist{max-height:320px;overflow:auto}
+  .ritem{display:flex;gap:9px;align-items:flex-start;padding:8px 12px;border-bottom:1px dashed #eef0f5}
+  .ritem:last-child{border-bottom:0}
+  .ritem input{margin-top:4px}
+  .ritem .t{flex:1;min-width:0}
+  .ritem .t a{color:var(--ink);text-decoration:none;font-size:13px;display:block;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .ritem .t a:hover{color:var(--brand);text-decoration:underline}
+  .ritem .t .u{font-size:11px;color:var(--ink3);word-break:break-all}
+  .rbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 12px;
+    border-top:1px solid var(--line);background:linear-gradient(180deg,#f8f9fc,#f2f4f9)}
+  .rbar .cnt{font-size:12px;color:var(--ink2)}
+  .rbar .spacer{margin-left:auto}
+  table{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:10px}
+  th,td{border:1px solid var(--line);padding:6px 8px;text-align:left}
+  th{background:#f8f9fc;position:sticky;top:0;font-weight:600;color:var(--ink2)}
+  th:first-child,td:first-child{width:36px;text-align:center}
+  td.num{text-align:right;color:var(--ink3);font-variant-numeric:tabular-nums}
+  .src{display:inline-block;padding:0 5px;margin:1px;background:var(--brand-soft);border-radius:4px;
+    font-size:11px;color:#3730a3}
+  .tblwrap{max-height:420px;overflow:auto;margin-top:10px}
+  td.kw{cursor:pointer;color:var(--brand)}
+  td.kw:hover{text-decoration:underline}
+  input.kw-cb{accent-color:var(--brand);cursor:pointer;width:14px;height:14px}
+  /* 搜索词队列 */
+  .chips{display:flex;flex-wrap:wrap;gap:6px;flex:1;min-width:240px;align-items:center}
+  .chips .empty{color:#aaa;font-size:12.5px}
+  .chip{display:inline-flex;align-items:center;gap:6px;max-width:230px;background:var(--brand-soft);
+    border:1px solid #dfe2ff;border-radius:999px;padding:5px 10px;font-size:12.5px;color:#3730a3}
+  .chip span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .chip b{cursor:pointer;font-weight:700;color:#8b93a3;padding:0 1px}
+  .chip b:hover{color:var(--bad)}
+  .history-list{display:flex;gap:8px;flex-wrap:wrap}
+  .history-tag{padding:6px 12px;background:var(--brand-soft);border:1px solid #dfe2ff;border-radius:999px;
+    font-size:12.5px;cursor:pointer;color:#3730a3}
+  .history-tag:hover{background:#e3e6ff}
+  .toast{position:fixed;right:18px;bottom:18px;max-width:340px;background:#111827;color:#fff;
+    font-size:12.5px;line-height:1.6;padding:10px 14px;border-radius:12px;box-shadow:0 10px 30px rgba(17,24,39,.28);
+    opacity:0;transform:translateY(10px);pointer-events:none;transition:.22s;z-index:99;border-left:3px solid #6366f1}
+  .toast.show{opacity:1;transform:none}
+  .toast.ok{border-left-color:#34d399} .toast.bad{border-left-color:#f87171} .toast.warn{border-left-color:#fbbf24}
+  .kbgrid{display:flex;flex-direction:column;gap:10px}
+  .foot{max-width:1180px;margin:0 auto;padding:0 16px 30px;font-size:12px;color:var(--ink3);line-height:1.9}
+  .flash{animation:flash 1.4s ease}
+  @keyframes flash{0%{box-shadow:0 0 0 3px rgba(79,70,229,.5)}100%{box-shadow:var(--shadow)}}
+  @media (max-width:640px){ .top{padding:14px} .pill{margin-left:0} .row .lb{min-width:100%} }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <div>
+      <h1><a href="/">宇轩同创</a>-创作平台</h1>
+      <div class="sub">选题 · 参考 · 知识库 · 提示词 <a href="./03.js" target="_blank" rel="noopener" style="color:#a5b4fc;font-weight:600">【脚本安装】</a></div>
+    </div>
+    <div class="pill"><span class="dot" id="dot"></span><span id="connText">脚本未连接</span></div>
+  </div>
+</header>
+
+<main>
+  <div class="tabs" id="tabs">
+    <button data-view="sug" class="on">1 选题</button>
+    <button data-view="article">2 参考</button>
+    <button data-view="kb">3 知识库</button>
+    <button data-view="prompt">4 提示词</button>
+  </div>
+
+  <!-- ==================== 1 关键词采集 ==================== -->
+  <div class="view on" id="viewSug">
+
+    <section class="card">
+      <div class="head">
+        <h2>联想词采集</h2>
+        <span class="tag">需安装油猴脚本</span>
+        <div class="grow">
+          <span class="st" id="sugStatus">等待操作</span>
+          <div class="bar"><i id="sugBar"></i></div>
+        </div>
+      </div>
+      <div class="body">
+        <div class="row">
+          <span class="lb">核心词</span>
+          <input type="text" id="cores" placeholder="多个词用逗号或换行分隔，如 耳机,键盘">
+        </div>
+        <div class="row">
+          <span class="lb">修饰词</span>
+          <textarea id="mods" placeholder="每行一个，如&#10;哪个牌子好&#10;推荐2026　（不填则只采核心词本身）"></textarea>
+        </div>
+        <div class="row" style="margin-top:12px">
+          <span class="lb">平台</span>
+          <div class="engines" id="engineChecks"></div>
+        </div>
+        <div class="row" style="margin-top:12px">
+          <button class="primary" id="sugGo">开始采集</button>
+          <button id="kwToSearch">勾选的关键词 → 加为搜索词</button>
+          <button id="sugToKB">写入知识库</button>
+          <button id="exportCsv">导出 CSV</button>
+          <button id="copyAll">复制全部</button>
+        </div>
+        <div class="hint">核心词 × 修饰词做笛卡尔积，逐平台并发请求；进度、结果、错误都由脚本按请求 id 回传，重复投递会被自动忽略。<br>
+          采完后在下方表格里<b>勾选关键词</b>（或直接把鼠标移到词上点一下），点「勾选的关键词 → 加为搜索词」即可批量送到第 <b>2</b> 页的搜索词队列，在那里一键批量抓取搜索结果页的文章。</div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="head">
+        <h2>历史记录</h2>
+        <span class="tag">点击恢复</span>
+        <div class="grow"><button class="tiny" id="clearHistory">清空历史</button></div>
+      </div>
+      <div class="body">
+        <div class="history-list" id="historyList"><span style="color:#aaa;font-size:12.5px">暂无记录</span></div>
+      </div>
+    </section>
+
+    <section class="card" id="tablePanel" style="display:none">
+      <div class="head">
+        <h2>关键词表格</h2>
+        <span class="tag" id="tblTag">0 条</span>
+        <span class="tag" id="tblSel">已勾选 0</span>
+        <div class="grow"><button class="tiny" id="toggleTable">展开 / 折叠</button></div>
+      </div>
+      <div class="body">
+        <div id="tableBody">
+          <div class="tblwrap">
+            <table id="tbl">
+              <thead><tr><th><input type="checkbox" id="tblAll" checked title="全选 / 取消全选"></th><th>#</th><th>关键词</th><th>平台数</th><th>来源</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="hint">勾选左侧复选框可多选；点关键词文字本身等于「单独把这个词加为搜索词」。</div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- ==================== 2 文章搜索 ==================== -->
+  <div class="view" id="viewArticle">
+
+    <section class="card" id="acCard">
+      <div class="head">
+        <h2>文章搜索接口</h2>
+        <span class="tag">需安装油猴脚本</span>
+        <div class="grow">
+          <span class="st" id="collectStatus">等待操作</span>
+          <div class="bar"><i id="collectBar"></i></div>
+        </div>
+      </div>
+      <div class="body">
+        <div class="row">
+          <span class="lb">搜索词</span>
+          <div class="chips" id="wordChips"><span class="empty">队列为空：到第 1 页勾选关键词后添加，或在下面输入框手动添加</span></div>
+        </div>
+        <div class="row">
+          <input type="text" id="wordInput" placeholder="手动补充搜索词，回车即加入队列，如 耳机哪个牌子好">
+          <button id="addWord">添加搜索词</button>
+          <button id="clearWords">清空队列</button>
+        </div>
+        <div class="row" style="margin-top:12px">
+          <span class="lb">搜索接口</span>
+          <select id="searchEngine" title="用哪个搜索引擎的结果页作为抓取地址">
+            <option value="baidu">百度搜索</option>
+            <option value="bing">必应搜索</option>
+            <option value="google">Google</option>
+            <option value="so">360搜索</option>
+            <option value="sogou">搜狗搜索</option>
+          </select>
+          <select id="filter" title="过滤强度">
+            <option value="normal">标准过滤</option>
+            <option value="strict">严格（只要长标题）</option>
+            <option value="loose">宽松（尽量多取）</option>
+          </select>
+          <select id="fmt" title="写入知识库的格式">
+            <option value="md">- [标题](链接)</option>
+            <option value="two">标题 / 换行 / 链接</option>
+            <option value="pipe">标题 | 链接</option>
+            <option value="num">1. 标题 + 缩进链接</option>
+          </select>
+          <button class="primary" id="acGo">开始搜索采集</button>
+        </div>
+        <div class="row">
+          <input type="text" id="url" placeholder="或直接粘贴目标网页地址（跳过搜索词），如 https://36kr.com/information/web_news/">
+          <button id="urlGo">只抓这个地址</button>
+        </div>
+        <div class="row" style="margin-top:12px;align-items:flex-start">
+          <span class="lb" style="padding-top:8px">风控兜底</span>
+          <textarea id="htmlPaste" style="min-height:74px;font-family:ui-monospace,Consolas,monospace;font-size:12px"
+            placeholder="搜索引擎弹出验证码 / 安全验证时改用这里：在浏览器里打开该搜索结果页 → 按 Ctrl+U 查看源码 → Ctrl+A 全选、Ctrl+C 复制 → 粘贴到本框 → 点「解析源码」。离线解析不经过网络，不受风控影响；地址基准取上面的搜索接口，相对链接可正常还原。"></textarea>
+        </div>
+        <div class="row">
+          <button id="parseHtml" class="primary">解析源码</button>
+          <button id="clearPaste" class="tiny">清空源码</button>
+          <span class="hint" style="margin-top:0" id="pasteHint">支持搜索结果页、列表页、文章页；脚本在线时走脚本解析，未装脚本时浏览器本地解析，结果同样进下方列表与知识库。</span>
+        </div>
+        <div class="hint">
+          流程：搜索词队列 → 按所选接口逐个生成搜索结果页地址 → 脚本后台抓取源码 → 先按 <code>article / main / #content / .post-body</code> 等优先级挑出<b>正文根区域</b>（去掉导航、页脚噪声）→ 在根区域内遍历 <code>a[href]</code> 得到 <code>{ text, href }</code> 链接清单，并用 <code>class</code> 定位的文章列表节点补全标题 → 汇总去重后写入知识库。<br>
+          多个搜索词会<b>串行</b>请求，词与词之间<b>随机降频 1.2–2.6 秒</b>；单个词失败不影响其余词，最后统一汇总。<br>
+          采集结果默认自动写入第 <b>3</b> 页「知识库」，也可关掉开关后用结果列表下方按钮手动挑选。<br>
+          <b>被风控了怎么办？</b>脚本会先预热搜索引擎首页拿会话 Cookie、带浏览器请求头、失败随机退避重试一次；
+          一旦识别出验证码 / 安全验证 / 429 限流等风控页会<b>立即停止并明确提示</b>（不硬试，避免封 IP），
+          此时换「必应 / 360」接口重试，或用下面第 3 个入口<b>粘贴源码离线解析</b>（不走网络，不受风控影响）。
+        </div>
+
+        <div class="result" id="resultBox">
+          <div class="rhead">
+            <label><input type="checkbox" id="ckAll" checked> 全选</label>
+            <span id="rMeta">—</span>
+            <div class="grow"><button class="tiny" id="clrResult">清空结果</button></div>
+          </div>
+          <div class="rlist" id="rlist"></div>
+          <div class="rbar">
+            <button class="primary" id="addSel">加入知识库</button>
+            <button class="tiny" id="expJson" title="按参考脚本的结构导出 JSON：url / title / time / text / links（脚本已装时同时复制到剪贴板）">导出 JSON</button>
+            <span class="cnt" id="selCnt">已勾选 0 / 0 条</span>
+            <span class="spacer"></span>
+            <label style="font-size:12px;color:var(--ink2)"><input type="checkbox" id="autoKB" checked> 采集完成后自动写入知识库</label>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- ==================== 3 知识库 ==================== -->
+  <div class="view" id="viewKB">
+
+    <section class="card" id="kbCard">
+      <div class="head">
+        <h2>知识库</h2>
+        <span class="tag" id="kStat">0 字 · 0 行</span>
+        <div class="grow">
+          <button class="tiny" id="kDedup">按行去重</button>
+          <button class="tiny" id="kCopy">复制</button>
+          <button class="tiny" id="kExport">导出 TXT</button>
+          <button class="tiny" id="kClear">清空</button>
+        </div>
+      </div>
+      <div class="body">
+        <div class="kbgrid">
+          <textarea id="ac-knowledge" placeholder="搜索采集到的文章标题与链接、以及关键词采集的结果都会追加到这里，也可以手动粘贴任何素材：竞品文案、选题清单、数据表格、原始笔记……"></textarea>
+          <div class="row">
+            <button class="primary" id="goPrompt">带着知识库去写提示词</button>
+            <span class="hint" style="margin-top:0">文章搜索默认自动写入这里；关键词采集结果点「写入知识库」入库；重复链接 / 重复关键词会自动跳过。</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- ==================== 4 提示词 ==================== -->
+  <div class="view" id="viewPrompt">
+
+    <section class="card">
+      <div class="head">
+        <h2>提示词</h2>
+        <span class="tag">点击预设按钮即填充</span>
+        <div class="grow">
+          <label style="font-size:12px;color:var(--ink3)"><input type="checkbox" id="appendMode"> 追加而非覆盖</label>
+          <button class="tiny" id="insertK">插入 {{knowledge}}</button>
+          <button class="tiny" id="pCopy">复制</button>
+          <button class="tiny" id="pFill">复制最终版（已填入知识库）</button>
+          <button class="tiny" id="pClear">清空</button>
+        </div>
+      </div>
+      <div class="body">
+        <div class="presets" id="presets"></div>
+        <div class="row" style="margin-top:12px">
+          <textarea id="prompt" placeholder="选中上方预设按钮自动填充，或直接手写。模板里的 {{knowledge}} 会在「复制最终版」时自动替换为知识库内容。"></textarea>
+        </div>
+        <div class="hint">
+          变量：<code>{{knowledge}}</code> 知识库全文 ｜ <code>{{count}}</code> 知识库行数 ｜ 无占位符时，「复制最终版」会自动在末尾追加知识库。<br>
+          <button class="tiny" id="backKB">返回知识库</button>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<div class="foot">
+  使用顺序：点顶部【脚本安装】装脚本 → 右上角变绿「脚本已连接」→ 第 1 页采联想词并勾选关键词「加为搜索词」→ 第 2 页选搜索接口后「开始搜索采集」（也可直接粘贴网址只抓一页）→ 结果自动写入第 3 页知识库 → 第 4 页点预设填提示词、「复制最终版」粘贴给大模型。<br>
+  四个页面共用同一份文档，切换只显隐不重载，已采集内容不会丢；搜索词队列、输入、历史、知识库、提示词全部存在浏览器 localStorage，刷新不丢；本页不联网、不上传任何内容，所有请求由油猴脚本在本地发出。
+</div>
+
+<script>
+(function () {
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+
+  /* ================= 存储 ================= */
+  var LS = 'content-toolkit:v1';
+  var state = {
+    tab: 'sug',
+    cores: '', mods: '', engine: 'baidu', checks: null,
+    words: [],            /* 第 2 页搜索词队列 */
+    history: [], kb: '', prompt: '', fmt: 'md', autoKB: true
+  };
+  try { Object.assign(state, JSON.parse(localStorage.getItem(LS) || '{}')); } catch (e) {}
+  if (!Array.isArray(state.words)) state.words = [];
+  /* 兼容旧版 01.html 的历史记录 */
+  try {
+    var legacy = JSON.parse(localStorage.getItem('sug_miner_data') || 'null');
+    if (legacy && Array.isArray(legacy.history) && legacy.history.length && !state.history.length) {
+      state.history = legacy.history;
+    }
+  } catch (e) {}
+
+  var saveT;
+  function save() {
+    clearTimeout(saveT);
+    saveT = setTimeout(function () {
+      try { localStorage.setItem(LS, JSON.stringify(state)); } catch (e) {}
+    }, 350);
+  }
+
+  /* ================= 通用工具 ================= */
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+  function safeHost(u) { try { return new URL(u).host; } catch (e) { return '外部页面'; } }
+  /* 串行采集的随机降频：1.2–2.6 秒，固定间隔容易被搜索引擎判定为机器行为 */
+  function randDelay() { return 1200 + Math.floor(Math.random() * 1400); }
+  function txt(v) { return (v === null || v === undefined) ? '' : String(v); }
+  function countLines(s) {
+    return (s || '').split('\n').map(function (x) { return x.trim(); }).filter(Boolean).length;
+  }
+  function stamp() {
+    var d = new Date(), p = function (n) { return (n < 10 ? '0' : '') + n; };
+    return d.getFullYear() + p(d.getMonth() + 1) + p(d.getDate()) + '_' + p(d.getHours()) + p(d.getMinutes());
+  }
+  function dl(name, text, type) {
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob(['\ufeff' + text], { type: type }));
+    a.download = name; document.body.appendChild(a); a.click();
+    setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 800);
+  }
+  function copy(text, okMsg, sayId) {
+    if (!text) { say(sayId, '内容为空', 'warn'); return; }
+    var done = function () { say(sayId, okMsg || '已复制', 'ok'); };
+    function fallback() {
+      var ta = document.createElement('textarea');
+      ta.value = text; ta.style.position = 'fixed'; ta.style.left = '-9999px';
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); done(); } catch (e) { say(sayId, '复制失败，请手动全选', 'bad'); }
+      document.body.removeChild(ta);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done, fallback);
+    } else fallback();
+  }
+
+  /* ================= 状态栏（各页各一套；目标栏不在当前页时用浮层补提示） ================= */
+  function say(id, text, cls) {
+    var el = $(id);
+    if (el) {
+      el.textContent = text;
+      el.className = 'st' + (cls ? ' ' + cls : '');
+    }
+    var host = (el && el.closest) ? el.closest('.view') : null;
+    if (host && !host.classList.contains('on')) toast(text, cls);
+  }
+  var toastT;
+  function toast(text, cls) {
+    var t = $('toast');
+    if (!t) return;
+    t.textContent = text;
+    t.className = 'toast show' + (cls ? ' ' + cls : '');
+    clearTimeout(toastT);
+    toastT = setTimeout(function () { t.className = 'toast'; }, 4500);
+  }
+  function bar(id, p) { var el = $(id); if (el) el.style.width = (p || 0) + '%'; }
+
+  /* ================= 顶部标签切换：只显隐，不重载 ================= */
+  var tabs = $('tabs');
+  var VIEWS = { sug: 'viewSug', article: 'viewArticle', kb: 'viewKB', prompt: 'viewPrompt' };
+  function switchView(name) {
+    if (!VIEWS[name]) name = 'sug';
+    state.tab = name; save();
+    tabs.querySelectorAll('button').forEach(function (b) { b.classList.toggle('on', b.dataset.view === name); });
+    Object.keys(VIEWS).forEach(function (k) {
+      var el = $(VIEWS[k]);
+      if (el) el.classList.toggle('on', k === name);
+    });
+  }
+  tabs.addEventListener('click', function (e) {
+    var b = e.target.closest ? e.target.closest('button[data-view]') : null;
+    if (b) switchView(b.dataset.view);
+  });
+  switchView(state.tab);
+
+  /* ============================================================
+     通信层（已精简）：
+     - 只保留同窗口 window.postMessage 一条通道：脚本注入在本页文档内，
+       自发自收即可，不再做 parent / top / BroadcastChannel 的跨帧转发
+     - 请求带 id，回传带同一 id，按 id 认领
+     ============================================================ */
+  function toScript(msg) { try { window.postMessage(msg, '*'); } catch (e) {} }
+
+  var online = false, pingTimer = null;
+  function markOnline() {
+    if (online) return;
+    online = true;
+    $('dot').classList.add('on');
+    $('connText').textContent = '脚本已连接';
+  }
+  function ping() {
+    toScript({ type: 'CT_PING' });
+    if (!online) {
+      $('dot').classList.remove('on');
+      $('connText').textContent = '脚本未连接（点击上方【脚本安装】）';
+    }
+  }
+
+  window.addEventListener('message', function (e) {
+    var d = e.data;
+    if (!d || typeof d.type !== 'string') return;
+    var t = d.type;
+    if (t === 'CT_PONG' || t === 'SUG_PONG' || t === 'AC_PONG') { markOnline(); return; }
+    if (t.indexOf('SUG_FETCH') === 0) { sugHandle(d); return; }
+    if (t === 'AC_RESULT') { onAcResult(d); return; }
+    if (t === 'AC_ERR') { onAcErr(d); return; }
+    if (t === 'AC_EXPORT_OK') {
+      say('collectStatus', 'JSON 已导出：' + (d.name || '') + '（' + (d.bytes || 0) + ' 字 · 经 ' + (d.via || '脚本') + '）', 'ok');
+      return;
+    }
+    if (t === 'AC_EXPORT_ERR') { say('collectStatus', '导出失败：' + (d.error || '未知错误'), 'bad'); return; }
+  });
+
+  ping();
+  pingTimer = setInterval(function () { if (!online) ping(); }, 3000);
+
+  /* ============================================================
+     一、关键词采集
+     ============================================================ */
+  var MSG = 'SUG_FETCH';
+  var ENGINES = [
+    ['baidu', '百度'], ['baidu_sugrec', '百度推荐'], ['bing', '必应'],
+    ['so360', '360'], ['qq', '搜狗'], ['taobao', '淘宝'],
+    ['bilibili', 'B站'], ['douyin', '抖音']
+  ];
+  /* 搜索接口：词 → 搜索结果页地址（在第 2 页选择） */
+  var SEARCH_TEMPLATES = {
+    baidu:  'https://www.baidu.com/s?wd={q}',
+    bing:   'https://cn.bing.com/search?q={q}',
+    google: 'https://www.google.com/search?q={q}',
+    so:     'https://www.so.com/s?q={q}',
+    sogou:  'https://www.sogou.com/web?query={q}'
+  };
+  function searchUrl(word) {
+    var tpl = SEARCH_TEMPLATES[$('searchEngine').value] || SEARCH_TEMPLATES.baidu;
+    return tpl.replace('{q}', encodeURIComponent(word));
+  }
+
+  var checksEl = $('engineChecks');
+  ENGINES.forEach(function (pair) {
+    var lb = document.createElement('label');
+    lb.innerHTML = '<input type="checkbox" class="engine-cb" value="' + pair[0] + '"> ' + pair[1];
+    checksEl.appendChild(lb);
+  });
+
+  var allWords = [];
+  var reqId = 0;
+  var pending = null;   /* { id, finished } */
+
+  /* 输入回填 */
+  $('cores').value = state.cores || '';
+  $('mods').value = state.mods || '';
+  if (state.engine) $('searchEngine').value = state.engine;
+  checksEl.querySelectorAll('.engine-cb').forEach(function (cb) {
+    cb.checked = state.checks ? state.checks.indexOf(cb.value) >= 0 : true;
+  });
+  function syncChecksClass() {
+    checksEl.querySelectorAll('label').forEach(function (lb) {
+      lb.classList.toggle('off', !lb.querySelector('input').checked);
+    });
+  }
+  syncChecksClass();
+
+  ['cores', 'mods'].forEach(function (id) {
+    $(id).addEventListener('input', function () { state[id] = $(id).value; save(); });
+  });
+  $('searchEngine').addEventListener('change', function () { state.engine = this.value; save(); });
+  checksEl.addEventListener('change', function () {
+    state.checks = Array.prototype.slice.call(checksEl.querySelectorAll('.engine-cb:checked')).map(function (c) { return c.value; });
+    syncChecksClass(); save();
+  });
+
+  function parseLines(el) {
+    return el.value.split(/[,，\n]+/).map(function (s) { return s.trim(); }).filter(Boolean);
+  }
+  function checkedEngines() {
+    return Array.prototype.slice.call(checksEl.querySelectorAll('.engine-cb:checked')).map(function (c) { return c.value; });
+  }
+
+  $('sugGo').onclick = function () {
+    var cores = parseLines($('cores'));
+    var mods = parseLines($('mods'));
+    var engines = checkedEngines();
+    if (!cores.length) { say('sugStatus', '请输入核心词', 'bad'); return; }
+    if (!engines.length) { say('sugStatus', '至少选一个平台', 'bad'); return; }
+
+    allWords = [];
+    pending = { id: ++reqId, finished: false };
+    renderTable([]);
+    bar('sugBar', 4);
+    say('sugStatus', '准备中…', 'warn');
+
+    toScript({ type: MSG, id: pending.id, cores: cores, modifiers: mods, engines: engines });
+
+    /* 页面侧兜底看门狗：脚本没装 / 没注入时不要永远卡在「准备中」 */
+    clearTimeout(pending._t);
+    pending._t = setTimeout(function () {
+      if (pending && pending.id === reqId && !pending.finished) {
+        pending.finished = true;
+        bar('sugBar', 0);
+        say('sugStatus', online
+          ? '60 秒未收到结果：可能平台接口变更或该站点被限流，试试减少核心词'
+          : '没检测到油猴脚本，请先点击上方【脚本安装】', 'bad');
+      }
+    }, 60000);
+  };
+
+  function sugHandle(d) {
+    var t = d.type;
+    if (t === MSG + '_PROGRESS') {
+      if (!pending || d.id !== pending.id || pending.finished) return;
+      bar('sugBar', d.progress);
+      say('sugStatus', '采集中… ' + d.progress + '%', 'warn');
+      return;
+    }
+    if (t === MSG + '_ERR') {
+      if (!pending || d.id !== pending.id || pending.finished) return;
+      pending.finished = true;
+      clearTimeout(pending._t);
+      bar('sugBar', 0);
+      say('sugStatus', '采集失败：' + (d.message || d.error || '未知错误'), 'bad');
+      return;
+    }
+    if (t === MSG + '_OK') {
+      if (!pending || d.id !== pending.id || pending.finished) return;
+      pending.finished = true;
+      clearTimeout(pending._t);
+      bar('sugBar', 100);
+      var total = 0;
+      Object.keys(d.results || {}).forEach(function (k) { total += (d.results[k] || []).length; });
+      say('sugStatus', '完成！组合 ' + d.combos + ' 组，共 ' + total + ' 条联想词' +
+        (d.partial ? '（部分超时，结果为已采集部分）' : ''), 'ok');
+      setTimeout(function () { bar('sugBar', 0); }, 600);
+      aggregate(d.results || {});
+      var kw = parseLines($('cores')).join(',');
+      state.history.unshift({ keyword: kw, time: new Date().toLocaleTimeString(), words: allWords });
+      if (state.history.length > 10) state.history.pop();
+      save(); renderHistory();
+    }
+  }
+
+  function aggregate(results) {
+    var map = {};
+    Object.keys(results).forEach(function (engine) {
+      (results[engine] || []).forEach(function (w) {
+        if (typeof w !== 'string' || !w) return;
+        if (!map[w]) map[w] = { word: w, count: 0, sources: [] };
+        map[w].count++;
+        map[w].sources.push(engine);
+      });
+    });
+    allWords = Object.keys(map).map(function (k) { return map[k]; })
+      .sort(function (a, b) { return b.count - a.count; });
+    $('tablePanel').style.display = 'block';
+    renderTable(allWords);
+  }
+
+  /* 关键词表格：首列为多选框 */
+  function renderTable(list) {
+    var tbody = document.querySelector('#tbl tbody');
+    $('tblTag').textContent = list.length + ' 条';
+    if (!list.length) {
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#aaa">暂无数据</td></tr>';
+      updTblSel();
+      return;
+    }
+    tbody.innerHTML = list.map(function (x, i) {
+      return '<tr><td><input type="checkbox" class="kw-cb" data-w="' + esc(x.word) + '" checked></td>' +
+        '<td>' + (i + 1) + '</td>' +
+        '<td class="kw" data-w="' + esc(x.word) + '" title="点击把这个词加为搜索词">' + esc(x.word) + '</td>' +
+        '<td class="num">' + x.count + '</td>' +
+        '<td>' + x.sources.map(function (s) { return '<span class="src">' + esc(s) + '</span>'; }).join('') + '</td></tr>';
+    }).join('');
+    $('tblAll').checked = true;
+    updTblSel();
+  }
+  function pickedWords() {
+    return Array.prototype.slice
+      .call(document.querySelectorAll('#tbl tbody input.kw-cb:checked'))
+      .map(function (c) { return c.getAttribute('data-w'); })
+      .filter(Boolean);
+  }
+  function updTblSel() {
+    var all = document.querySelectorAll('#tbl tbody input.kw-cb');
+    var n = document.querySelectorAll('#tbl tbody input.kw-cb:checked').length;
+    $('tblSel').textContent = '已勾选 ' + n + ' / ' + all.length;
+    $('kwToSearch').textContent = n ? ('勾选的关键词 → 加为搜索词 (' + n + ')') : '勾选的关键词 → 加为搜索词';
+  }
+  document.querySelector('#tbl tbody').addEventListener('change', function (e) {
+    if (e.target && e.target.classList.contains('kw-cb')) updTblSel();
+  });
+  document.querySelector('#tbl tbody').addEventListener('click', function (e) {
+    var td = e.target.closest ? e.target.closest('td.kw') : null;
+    if (!td || !td.getAttribute('data-w')) return;
+    var w = td.getAttribute('data-w');
+    var r = addWords([w]);
+    switchView('article');
+    say('collectStatus', r.added
+      ? '已把「' + w + '」加入搜索词队列，点「开始搜索采集」即可抓取'
+      : '「' + w + '」已在搜索词队列中', r.added ? 'ok' : 'warn');
+    flashAc();
+  });
+  $('tblAll').onchange = function () {
+    var on = $('tblAll').checked;
+    document.querySelectorAll('#tbl tbody input.kw-cb').forEach(function (c) { c.checked = on; });
+    updTblSel();
+  };
+  /* 多选关键词 → 第 2 页搜索词队列 */
+  $('kwToSearch').onclick = function () {
+    var ws = pickedWords();
+    if (!ws.length) { say('sugStatus', '请先在表格里勾选关键词', 'warn'); return; }
+    var r = addWords(ws);
+    switchView('article');
+    say('collectStatus', '已加入 ' + r.added + ' 个搜索词' +
+      (r.dup ? '（跳过重复 ' + r.dup + ' 个）' : '') + '，当前队列 ' + state.words.length + ' 个词，点「开始搜索采集」', r.added ? 'ok' : 'warn');
+    flashAc();
+  };
+
+  $('toggleTable').onclick = function () {
+    var b = $('tableBody');
+    b.style.display = (b.style.display === 'none') ? '' : 'none';
+  };
+
+  /* 关键词 → 知识库（两个工具打通） */
+  $('sugToKB').onclick = function () {
+    if (!allWords.length) { say('sugStatus', '暂无结果可写入，请先采集', 'warn'); return; }
+    var lines = allWords.map(function (x) { return x.word; });
+    var r = appendKBText(lines, '关键词 ' + parseLines($('cores')).join(','));
+    if (r.added) {
+      say('sugStatus', '已写入知识库 ' + r.added + ' 条' + (r.dup ? '（跳过重复 ' + r.dup + ' 条）' : ''), 'ok');
+      flashKB(true);
+    } else {
+      say('sugStatus', '这些关键词已在知识库中（跳过 ' + r.dup + ' 条）', 'warn');
+    }
+  };
+
+  $('exportCsv').onclick = function () {
+    if (!allWords.length) { say('sugStatus', '暂无数据', 'warn'); return; }
+    var csv = '\ufeff关键词,平台数,来源\n' + allWords.map(function (x) {
+      return '"' + x.word + '",' + x.count + ',"' + x.sources.join(';') + '"';
+    }).join('\n');
+    dl('联想词_' + stamp() + '.csv', csv, 'text/csv;charset=utf-8');
+    say('sugStatus', '已导出 ' + allWords.length + ' 条', 'ok');
+  };
+  $('copyAll').onclick = function () {
+    if (!allWords.length) { say('sugStatus', '暂无数据', 'warn'); return; }
+    copy(allWords.map(function (x) { return x.word; }).join('\n'),
+      '已复制 ' + allWords.length + ' 条', 'sugStatus');
+  };
+
+  /* ---------- 历史记录 ---------- */
+  function renderHistory() {
+    var el = $('historyList');
+    if (!state.history || !state.history.length) {
+      el.innerHTML = '<span style="color:#aaa;font-size:12.5px">暂无记录</span>';
+      return;
+    }
+    el.innerHTML = state.history.map(function (h, i) {
+      return '<span class="history-tag" data-idx="' + i + '">' + esc(h.keyword) + '（' + esc(h.time) + '）</span>';
+    }).join('');
+  }
+  $('historyList').addEventListener('click', function (e) {
+    var idx = e.target.getAttribute && e.target.getAttribute('data-idx');
+    if (idx === null) return;
+    var h = state.history[+idx];
+    if (!h) return;
+    allWords = h.words || [];
+    renderTable(allWords);
+    $('tablePanel').style.display = 'block';
+    say('sugStatus', '已恢复历史：' + h.keyword, 'ok');
+  });
+  $('clearHistory').onclick = function () {
+    state.history = []; save(); renderHistory();
+    say('sugStatus', '历史已清空', 'warn');
+  };
+  renderHistory();
+
+  /* ============================================================
+     二、搜索词队列（第 2 页）
+     ============================================================ */
+  function renderChips() {
+    var el = $('wordChips');
+    if (!state.words.length) {
+      el.innerHTML = '<span class="empty">队列为空：到第 1 页勾选关键词后添加，或在下面输入框手动添加</span>';
+    } else {
+      el.innerHTML = state.words.map(function (w, i) {
+        return '<span class="chip"><span title="' + esc(w) + '">' + esc(w) + '</span>' +
+               '<b data-i="' + i + '" title="移除">&times;</b></span>';
+      }).join('');
+    }
+    $('acGo').textContent = state.words.length ? ('开始搜索采集（' + state.words.length + ' 个词）') : '开始搜索采集';
+    $('acGo').disabled = !state.words.length || !!run;
+  }
+  function addWords(list) {
+    var added = 0, dup = 0;
+    (list || []).forEach(function (w) {
+      w = String(w == null ? '' : w).replace(/\s+/g, ' ').trim();
+      if (!w) return;
+      if (state.words.indexOf(w) >= 0) { dup++; return; }
+      state.words.push(w); added++;
+    });
+    save(); renderChips();
+    return { added: added, dup: dup };
+  }
+  $('wordChips').addEventListener('click', function (e) {
+    var b = e.target.closest ? e.target.closest('b[data-i]') : null;
+    if (!b) return;
+    var i = +b.getAttribute('data-i');
+    var w = state.words[i];
+    state.words.splice(i, 1);
+    save(); renderChips();
+    say('collectStatus', '已移除搜索词「' + w + '」，剩余 ' + state.words.length + ' 个', 'warn');
+  });
+  $('addWord').onclick = function () {
+    var box = $('wordInput');
+    var raw = box.value;
+    var list = raw.split(/[,，\n]+/);
+    var r = addWords(list);
+    if (!r.added && !r.dup) { say('collectStatus', '请先输入搜索词', 'bad'); return; }
+    box.value = ''; box.focus();
+    say('collectStatus', r.added ? ('已加入 ' + r.added + ' 个搜索词' + (r.dup ? '（跳过重复 ' + r.dup + ' 个）' : ''))
+      : ('这些词已在队列中（跳过 ' + r.dup + ' 个）'), r.added ? 'ok' : 'warn');
+  };
+  $('wordInput').addEventListener('keydown', function (e) { if (e.key === 'Enter') $('addWord').click(); });
+  $('clearWords').onclick = function () {
+    if (!state.words.length) { say('collectStatus', '队列本来就是空的', 'warn'); return; }
+    state.words = []; save(); renderChips();
+    say('collectStatus', '搜索词队列已清空', 'warn');
+  };
+
+  function flashAc() {
+    var card = $('acCard');
+    if (!card) return;
+    card.classList.remove('flash'); void card.offsetWidth; card.classList.add('flash');
+    if (card.scrollIntoView) { try { card.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (e) {} }
+  }
+
+  renderChips();
+
+  /* ============================================================
+     三、文章搜索采集（只保留远程抓取，按 class 定位遍历在脚本侧）
+     ============================================================ */
+  var acSeq = 0;
+  var run = null;   /* { queue:[{word,url}], idx, total, agg, seen, failed, empty, timer, pending, mode } */
+
+  function startRun(queue, mode, skipStart) {
+    if (run) { say('collectStatus', '正在采集中，请等本轮结束', 'warn'); return; }
+    if (!queue.length) { say('collectStatus', '没有可采集的搜索词', 'bad'); return; }
+    run = {
+      queue: queue, idx: 0, total: queue.length, agg: [], seen: {},
+      failed: [], empty: [], blocked: [], timer: null, pending: '', mode: mode,
+      html: (mode === 'html') ? ((queue[0] && queue[0].html) || '') : '',
+      pages: [], vias: {}, roots: {}   /* 每个来源页的正文根区域 / 命中选择器 / 正文文本，供导出 JSON 用 */
+    };
+    $('resultBox').classList.remove('show');
+    $('rlist').innerHTML = '';
+    acItems = [];
+    renderChips();
+    bar('collectBar', 2);
+    if (skipStart) return;   /* 本地解析等场景：先建好 run 结构，由调用方自己喂结果 */
+    nextWord();
+  }
+
+  function nextWord() {
+    if (!run) return;
+    if (run.idx >= run.queue.length) { finishRun(); return; }
+    var q = run.idx;
+    var item = run.queue[q];
+    var id = 'a_' + Date.now() + '_' + (++acSeq);
+    run.pending = id;
+    bar('collectBar', Math.round(q / run.total * 100));
+    say('collectStatus', '正在抓取 (' + (q + 1) + '/' + run.total + ')：' + (item.word || safeHost(item.url)), 'warn');
+    clearTimeout(run.timer);
+    run.timer = setTimeout(function () {
+      if (run && run.pending === id) {
+        run.failed.push(item.word || safeHost(item.url));
+        run.pending = ''; run.idx++;
+        setTimeout(nextWord, 200);
+      }
+    }, 26000);
+    if (run.html) {
+      /* 风控兜底：把用户粘贴的网页源码交给脚本离线解析（不走网络） */
+      toScript({ type: 'AC_PARSE_HTML', id: id, html: run.html, url: item.url,
+                 word: item.word || '', filter: $('filter').value });
+    } else {
+      toScript({ type: 'AC_SEARCH', id: id, word: item.word || '', url: item.url, filter: $('filter').value });
+    }
+    if (!online) {
+      /* 只有这条请求到点仍没等到任何回传时才提示脚本未装，避免盖掉已完成的汇总结果 */
+      setTimeout(function () {
+        if (!online && run && run.pending === id) {
+          say('collectStatus', '没检测到油猴脚本，请先点击上方【脚本安装】再采集', 'bad');
+        }
+      }, 1200);
+    }
+  }
+
+  function onAcResult(d) {
+    if (!run || d.id !== run.pending) return;   /* 非本轮 / 已超时的回传，忽略 */
+    clearTimeout(run.timer); run.pending = '';
+    var items = Array.isArray(d.items) ? d.items : [];
+    var word = d.word || (run.queue[run.idx] && run.queue[run.idx].word) || '';
+    if (!items.length) run.empty.push(word || safeHost(d.source || ''));
+
+    /* 参考脚本同款页面结构：url / title / time / root / textLen / text */
+    if (d.note) say('collectStatus', txt(d.note), 'warn');
+    var pg = (d.page && typeof d.page === 'object') ? d.page : {};
+    run.pages.push({
+      url: d.source || (run.queue[run.idx] && run.queue[run.idx].url) || '',
+      word: word,
+      title: pg.title || '',
+      time: pg.time || new Date().toISOString(),
+      root: pg.root || 'body',
+      via: d.via || 'none',
+      textLen: pg.textLen || 0,
+      text: pg.text || '',
+      scanned: d.total || 0,
+      got: items.length
+    });
+    run.vias[d.via || 'none'] = (run.vias[d.via || 'none'] || 0) + items.length;
+    run.roots[pg.root || 'body'] = (run.roots[pg.root || 'body'] || 0) + 1;
+    items.forEach(function (it) {
+      if (!it || !it.url) return;
+      var k = String(it.url).replace(/#.*$/, '');
+      if (run.seen[k]) return;
+      run.seen[k] = 1;
+      run.agg.push({ title: it.title || '(无标题)', url: it.url, word: word, redirect: !!it.redirect });
+    });
+    run.idx++;
+    setTimeout(nextWord, randDelay());   /* 串行 + 随机降频，避免被搜索引擎限流 */
+  }
+
+  function onAcErr(d) {
+    if (!run || d.id !== run.pending) return;
+    clearTimeout(run.timer); run.pending = '';
+    var q = run.queue[run.idx];
+    var label = txt((q && q.word) || safeHost((q && q.url) || ''));
+    var msg = txt(d.error) || '未知错误';
+    run.failed.push(label);
+    if (d.blocked) {
+      run.blocked.push(label);
+      say('collectStatus', '「' + label + '」' + msg + (txt(d.hint) ? ' · ' + d.hint : ''), 'bad');
+    } else {
+      say('collectStatus', '「' + label + '」抓取失败（' + txt(d.code || 'ERR') + '）：' + msg +
+        (txt(d.hint) ? ' · ' + d.hint : '') + '，继续下一个', 'warn');
+    }
+    run.idx++;
+    setTimeout(nextWord, randDelay());
+  }
+
+  var lastR = null;   /* 最近一轮采集汇总：没有进行中的任务时，「导出 JSON」读它 */
+
+  function finishRun() {
+    if (!run) return;
+    var r = run; run = null;
+    lastR = r;
+    renderChips();
+    bar('collectBar', 100);
+    setTimeout(function () { bar('collectBar', 0); }, 900);
+    renderResults(r);
+
+    var okWords = r.total - r.failed.length;
+    var tail = '';
+    if (r.failed.length) tail += '；失败 ' + r.failed.length + ' 个（' + r.failed.slice(0, 3).join('、') + (r.failed.length > 3 ? ' 等' : '') + '）';
+    if (r.empty.length) tail += '；' + r.empty.length + ' 个词无符合过滤条件的链接（可切「宽松」再采）';
+    if (r.blocked && r.blocked.length) {
+      tail += '；' + r.blocked.length + ' 个词被风控拦截（' + r.blocked.slice(0, 2).join('、') +
+              (r.blocked.length > 2 ? ' 等' : '') + '）→ 换「必应 / 360」接口，或用「粘贴源码解析」兜底';
+    }
+
+    if (!r.agg.length) {
+      say('collectStatus', '采集完成：' + r.total + ' 个词共 0 条可用结果，知识库未写入' + tail, 'bad');
+      return;
+    }
+    if ($('autoKB').checked) {
+      var res = appendKB(r.agg, runTitle(r));
+      if (res.added) {
+        say('collectStatus', '搜索完成：' + okWords + '/' + r.total + ' 个词成功，去重后 ' + r.agg.length +
+          ' 条，已写入知识库 ' + res.added + ' 条' + (res.dup ? '（跳过重复 ' + res.dup + ' 条）' : '') + tail, 'ok');
+        flashKB();
+      } else {
+        say('collectStatus', '搜索完成：' + r.agg.length + ' 条结果已在知识库中（跳过 ' + res.dup + ' 条）' + tail, 'warn');
+      }
+    } else {
+      say('collectStatus', '搜索完成：' + okWords + '/' + r.total + ' 个词成功，去重后 ' + r.agg.length +
+        ' 条，点下方「加入知识库」写入' + tail, 'warn');
+    }
+  }
+
+  function runTitle(r) {
+    if (r.mode === 'html') return '粘贴源码解析 · ' + safeHost(r.queue[0].url);
+    if (r.mode === 'url') return '文章抓取 · ' + safeHost(r.queue[0].url);
+    var ws = r.queue.map(function (x) { return x.word; }).filter(Boolean);
+    if (!ws.length) return '文章搜索';
+    if (ws.length <= 3) return '文章搜索 · ' + ws.join('、');
+    return '文章搜索 · ' + ws.slice(0, 3).join('、') + ' 等 ' + ws.length + ' 个词';
+  }
+
+  /* ---------- 结果渲染 ---------- */
+  var acItems = [];
+  function renderResults(r) {
+    acItems = r.agg;
+    $('resultBox').classList.add('show');
+    var hosts = {}, hn = 0;
+    r.agg.forEach(function (x) {
+      var h = safeHost(x.url);
+      if (!hosts[h]) { hosts[h] = 1; hn++; }
+    });
+    $('rMeta').textContent = (r.mode === 'html' ? '粘贴源码解析' : r.mode === 'url' ? '指定地址抓取' : '搜索采集') + ' · ' +
+      r.total + ' 个词（成功 ' + (r.total - r.failed.length) + '）· 去重后 ' + r.agg.length + ' 条 · ' +
+      hn + ' 个站点' + topLabel(r.roots, '正文根') + topLabel(r.vias, '命中');
+    $('rlist').innerHTML = r.agg.map(function (it, i) {
+      var t = esc(it.title || '(无标题)');
+      var u = esc(it.url || '');
+      return '<div class="ritem"><input type="checkbox" data-i="' + i + '" checked>' +
+             '<div class="t"><a href="' + u + '" target="_blank" rel="noopener">' + t + '</a>' +
+             '<div class="u">' + esc(safeHost(it.url)) + (it.word ? ' · 词：' + esc(it.word) : '') +
+             (it.redirect ? ' · 跳转链接（搜索引擎包装地址）' : '') + ' · ' + u + '</div></div></div>';
+    }).join('') || '<div class="ritem"><div class="t"><a>没有符合条件的链接，试试把过滤切到「宽松」，或换一个搜索接口</a></div></div>';
+    $('ckAll').checked = true;
+    updSelCnt();
+  }
+
+  function updSelCnt() {
+    var all = $('rlist').querySelectorAll('input[type=checkbox]');
+    var n = 0;
+    all.forEach(function (c) { if (c.checked) n++; });
+    $('selCnt').textContent = '已勾选 ' + n + ' / ' + all.length + ' 条';
+    $('addSel').textContent = n ? ('加入知识库 (' + n + ')') : '加入知识库';
+  }
+  $('rlist').addEventListener('change', function (e) {
+    if (e.target && e.target.type === 'checkbox') updSelCnt();
+  });
+  $('ckAll').onchange = function () {
+    $('rlist').querySelectorAll('input[type=checkbox]').forEach(function (c) { c.checked = $('ckAll').checked; });
+    updSelCnt();
+  };
+  $('clrResult').onclick = function () {
+    $('resultBox').classList.remove('show');
+    $('rlist').innerHTML = ''; acItems = []; bar('collectBar', 0);
+    lastR = null;
+    say('collectStatus', '已清空结果');
+  };
+  $('addSel').onclick = function () {
+    var picks = [];
+    $('rlist').querySelectorAll('input[type=checkbox]').forEach(function (c) {
+      var i = +c.getAttribute('data-i');
+      if (c.checked && acItems[i]) picks.push(acItems[i]);
+    });
+    if (!picks.length) { say('collectStatus', '没有勾选任何条目', 'warn'); return; }
+    var r = appendKB(picks, '文章搜索 · 手动挑选 ' + picks.length + ' 条');
+    if (r.added) {
+      say('collectStatus', '已加入知识库 ' + r.added + ' 条' + (r.dup ? '（跳过重复 ' + r.dup + ' 条）' : ''), 'ok');
+      bar('collectBar', 0); flashKB(true);
+    } else {
+      say('collectStatus', '这 ' + r.dup + ' 条链接已在知识库中，未重复写入', 'warn');
+    }
+  };
+
+  /* ---------- 汇总标注：取命中最多的正文根区域 / 选择器 ---------- */
+  function topLabel(map, name) {
+    if (!map) return '';
+    var top = '', n = 0;
+    Object.keys(map).forEach(function (k) { if (map[k] > n) { n = map[k]; top = k; } });
+    return top ? ' · ' + name + '：' + top : '';
+  }
+
+  /* ---------- 导出 JSON（结构参考「本页内容采集器」：url / title / time / text / links） ---------- */
+  function buildExport() {
+    var picks = [];
+    $('rlist').querySelectorAll('input[type=checkbox]').forEach(function (c) {
+      var i = +c.getAttribute('data-i');
+      if (c.checked && acItems[i]) picks.push(acItems[i]);
+    });
+    var src = picks.length ? picks : acItems;
+    if (!src.length) return null;
+
+    var links = [], lmark = {};
+    src.forEach(function (it) {
+      var k = String(it.url || '').replace(/#.*$/, '');
+      if (!k || lmark[k]) return;
+      lmark[k] = 1;
+      links.push({ text: it.title || '(无标题)', href: it.url });
+    });
+
+    var pages = (lastR && Array.isArray(lastR.pages)) ? lastR.pages : [];
+    var body = pages.map(function (p) {
+      return '\u3010' + (p.title || p.url) + '\u3011\n' + (p.text || '');
+    }).join('\n\n').slice(0, 20000);
+
+    return {
+      url: location.href,
+      title: document.title,
+      time: new Date().toISOString(),
+      slug: ((lastR && lastR.mode === 'html') ? 'collect_paste_' : (lastR && lastR.mode === 'url') ? 'collect_url_' : 'collect_search_') + Date.now(),
+      source: (lastR && lastR.mode === 'html') ? '粘贴源码离线解析' : (lastR && lastR.mode === 'url') ? '指定地址抓取' : '文章搜索采集',
+      words: pages.map(function (p) { return p.word; }).filter(Boolean),
+      pages: pages.map(function (p) {
+        return { url: p.url, word: p.word, title: p.title, time: p.time, root: p.root,
+                 via: p.via, textLen: p.textLen, got: p.got, scanned: p.scanned };
+      }),
+      text: body,
+      links: links,
+      items: src.map(function (it) { return { title: it.title || '(无标题)', url: it.url, word: it.word || '', redirect: !!it.redirect }; })
+    };
+  }
+
+  $('expJson').onclick = function () {
+    var data = buildExport();
+    if (!data) { say('collectStatus', '还没有可导出的采集结果，先做一次搜索采集', 'bad'); return; }
+    if (online) {
+      toScript({ type: 'AC_EXPORT', id: 'x_' + Date.now(), data: data });
+      say('collectStatus', '正在导出 JSON：' + data.links.length + ' 条链接 · ' + data.pages.length +
+        ' 个来源页，脚本会下载文件并复制到剪贴板', 'warn');
+      return;
+    }
+    try {   /* 脚本没装：浏览器本地下载兜底 */
+      var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = data.slug + '.json';
+      document.body.appendChild(a); a.click();
+      setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+      say('collectStatus', '未检测到脚本，已用浏览器直接下载 ' + a.download + '（' + data.links.length + ' 条链接）', 'ok');
+    } catch (err) { say('collectStatus', '导出失败：' + err.message, 'bad'); }
+  };
+
+  /* ============================================================
+     三-B、风控兜底：粘贴搜索结果页 / 列表页源码，离线解析
+     脚本在线 → 发 AC_PARSE_HTML 给脚本（与远程抓取共用同一套解析器）
+     脚本未装 → 页面本地 DOMParser 解析（同一批引擎专用选择器，精简版）
+     ============================================================ */
+  var P_ENGINE = [
+    [/sogou\.com$/i,  ['.vrwrap', '.rb', '.lr_17', '[class*="vr-title"]', '#results > div']],
+    [/baidu\.com$/i,  ['.result.c-container', 'div[tpl]', '.c-container', '#content_left > div']],
+    [/bing\.com$/i,   ['li.b_algo', '.b_algo', '#b_results > li']],
+    [/so\.com$/i,     ['.res-list > li', '.result', 'li[class*="item"]']],
+    [/google\./i,     ['div.g', '.tF2Cxc', 'div[data-hveid]']]
+  ];
+  var P_ITEM = ['article', '[class*="article-item"]', '[class*="post-item"]', '[class*="news-item"]',
+                '[class*="list-item"]', '[class*="result-item"]', '[class*="card-item"]', 'li[class*="item"]'];
+  var P_SKIP = /^(javascript:|mailto:|tel:|data:|blob:|#)/i;
+
+  function localParse(html, baseUrl, filter) {
+    var doc = new DOMParser().parseFromString(html, 'text/html');
+    var min = filter === 'strict' ? 14 : filter === 'loose' ? 4 : 8;
+    var max = filter === 'strict' ? 90 : filter === 'loose' ? 200 : 120;
+    var rule = null;
+    try { var hh = new URL(baseUrl).hostname; P_ENGINE.forEach(function (e) { if (e[0].test(hh)) rule = e[1]; }); } catch (e) {}
+    var sels = (rule || []).concat(P_ITEM);
+    var out = [], mark = {}, via = {}, scanned = 0;
+
+    function abs(href) {
+      if (!href || P_SKIP.test(href)) return '';
+      try { var u = new URL(href, baseUrl).href; return /^https?:/i.test(u) ? u : ''; } catch (e) { return ''; }
+    }
+    function norm(u) {
+      return u.replace(/#.*$/, '').replace(/[?&](utm_[^=]+|spm|from|share_token|scene|ref)=[^&]*/gi, '')
+              .replace(/[?&]$/, '').replace(/\?$/, '');
+    }
+    function push(sel, title, url) {
+      if (out.length >= 300) return;
+      var k = norm(url);
+      if (!k || mark[k]) return;
+      mark[k] = 1; via[sel] = (via[sel] || 0) + 1;
+      out.push({ title: title, url: url, from: 'local', redirect: /\/link\?|\/redir|\/url\?|\/ck\/a/i.test(url) });
+    }
+    function ok(t) { return t && t.length >= min && t.length <= max && /[\u4e00-\u9fa5a-zA-Z0-9]/.test(t); }
+    function inChrome(el) { try { return !!el.closest('nav, header, footer'); } catch (e) { return false; } }
+
+    [doc.querySelector('#results') || doc.querySelector('main') || doc.body, doc.body].forEach(function (root, ri) {
+      if (!root || out.length) return;
+      sels.forEach(function (sel) {
+        var nodes; try { nodes = root.querySelectorAll(sel); } catch (e) { return; }
+        for (var i = 0; i < nodes.length && out.length < 300; i++) {
+          var box = nodes[i];
+          if (inChrome(box)) continue;
+          scanned++;
+          var a = box.querySelector('h1 a, h2 a, h3 a, h4 a, [class*="title"] a, a[href]');
+          var t = (a ? a.textContent : box.textContent) || '';
+          t = String(t).replace(/\s+/g, ' ').trim();
+          var u = a ? abs(a.getAttribute('href')) : '';
+          if (!u || !ok(t)) continue;
+          push((ri ? 'doc:' : '') + (rule && rule.indexOf(sel) >= 0 ? 'engine:' + sel : sel), t, u);
+        }
+      });
+    });
+
+    if (!out.length) {   /* 全兜底：整页 a[href] 遍历 */
+      var all = doc.querySelectorAll('a[href]');
+      for (var j = 0; j < all.length && out.length < 300; j++) {
+        if (inChrome(all[j])) continue;
+        scanned++;
+        var t2 = String(all[j].textContent || '').replace(/\s+/g, ' ').trim();
+        var u2 = abs(all[j].getAttribute('href'));
+        if (!u2 || !ok(t2)) continue;
+        push('fallback:a[href]', t2, u2);
+      }
+    }
+    var top = '', n = 0;
+    Object.keys(via).forEach(function (k) { if (via[k] > n) { n = via[k]; top = k; } });
+    var bodyText = String((doc.body && doc.body.textContent) || '').replace(/\s+/g, ' ').trim();
+    return {
+      items: out, scanned: scanned, via: 'local:' + (top || 'none'),
+      page: { url: baseUrl, title: String(doc.title || '').slice(0, 200),
+              time: new Date().toISOString(), root: 'paste', textLen: bodyText.length,
+              text: bodyText.slice(0, 8000) },
+      blocked: /(验证码|安全验证|人机验证|滑动验证|antispider|captcha|access denied)/i.test(bodyText.slice(0, 8000))
+    };
+  }
+
+  $('parseHtml').onclick = function () {
+    var html = $('htmlPaste').value;
+    if (html.replace(/\s/g, '').length < 80) {
+      say('collectStatus', '请先粘贴网页源码：在结果页按 Ctrl+U 查看源码，Ctrl+A 全选、Ctrl+C 复制后贴进来', 'bad');
+      return;
+    }
+    var base = $('url').value.trim();
+    if (!/^https?:\/\//i.test(base)) base = searchUrl(state.words[0] || '');
+    if (online) {
+      startRun([{ word: '粘贴源码', url: base, html: html }], 'html');
+      return;
+    }
+    /* 脚本没装：浏览器本地解析，同样走结果列表 / 知识库链路 */
+    var r;
+    try { r = localParse(html, base, $('filter').value); }
+    catch (e) { say('collectStatus', '本地解析失败：' + e.message, 'bad'); return; }
+    if (r.blocked && !r.items.length) {
+      say('collectStatus', '粘贴的源码本身就是一个验证 / 风控页面（没有正文内容）：请在能正常打开结果页的浏览器里复制源码，或换「必应 / 360」接口', 'bad');
+      return;
+    }
+    startRun([{ word: '粘贴源码', url: base, html: '' }], 'html', true);
+    /* 上面已建好 run 结构（skipStart 不发任何网络请求），这里直接喂本地解析结果 */
+    run.pending = 'local_' + Date.now();
+    clearTimeout(run.timer);
+    onAcResult({ id: run.pending, word: '粘贴源码', source: base, items: r.items,
+                 total: r.scanned, via: r.via, page: r.page, links: [] });
+    setTimeout(finishRun, 60);
+    say('collectStatus', '未检测到脚本，已用浏览器本地解析：命中 ' + r.items.length + ' 条（扫描 ' +
+      r.scanned + ' 个链接 · ' + r.via + '）', r.items.length ? 'ok' : 'warn');
+  };
+  $('clearPaste').onclick = function () {
+    $('htmlPaste').value = '';
+    say('collectStatus', '粘贴框已清空', 'warn');
+  };
+
+  /* ---------- 采集触发 ---------- */
+  $('acGo').onclick = function () {
+    var queue = state.words.map(function (w) { return { word: w, url: searchUrl(w) }; });
+    startRun(queue, 'search');
+  };
+  $('urlGo').onclick = function () {
+    var url = $('url').value.trim();
+    if (!/^https?:\/\//i.test(url)) { say('collectStatus', '请填写 http:// 或 https:// 开头的完整地址', 'bad'); return; }
+    startRun([{ word: '', url: url }], 'url');
+  };
+  $('url').addEventListener('keydown', function (e) { if (e.key === 'Enter') $('urlGo').click(); });
+
+  /* ============================================================
+     四、知识库 + 提示词
+     ============================================================ */
+  var kEl = $('ac-knowledge'), pEl = $('prompt');
+  kEl.value = state.kb || '';
+  pEl.value = state.prompt || '';
+  $('autoKB').checked = state.autoKB !== false;
+
+  var fmtSel = $('fmt'), fmtOK = false;
+  for (var oi = 0; oi < fmtSel.options.length; oi++) {
+    if (fmtSel.options[oi].value === state.fmt) { fmtOK = true; break; }
+  }
+  fmtSel.value = fmtOK ? state.fmt : 'md';
+
+  function stat() {
+    var v = kEl.value;
+    $('kStat').textContent = v.length + ' 字 · ' + countLines(v) + ' 行';
+  }
+  kEl.addEventListener('input', function () { state.kb = kEl.value; stat(); save(); });
+  pEl.addEventListener('input', function () { state.prompt = pEl.value; save(); });
+  fmtSel.addEventListener('change', function () { state.fmt = fmtSel.value; save(); });
+  $('autoKB').addEventListener('change', function () {
+    state.autoKB = $('autoKB').checked; save();
+    say('collectStatus', '已' + ($('autoKB').checked ? '开启' : '关闭') + '「采集后自动写入知识库」', 'warn');
+  });
+  stat();
+
+  function flashKB(gotoKB) {
+    if (gotoKB) switchView('kb');
+    var c = $('kbCard');
+    if (!c) return;
+    c.classList.remove('flash');
+    void c.offsetWidth;
+    c.classList.add('flash');
+    if (gotoKB && c.scrollIntoView) { try { c.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (e) { c.scrollIntoView(); } }
+  }
+
+  /* ---------- 预设提示词库 ---------- */
+  var PRESETS = [
+    { label: '摘要生成', tpl: '你是资深内容编辑。请阅读【知识库】中的文章素材，逐篇输出：\n1）一句话核心观点\n2）200 字以内摘要（保留关键数据与结论）\n3）这篇最值得借鉴的一个写法\n\n【知识库】\n{{knowledge}}' },
+    { label: '选题挖掘', tpl: '基于以下文章素材，帮我挖掘 10 个可执行的选题。\n要求：每个选题写成「方向 + 独特切入点」，并标注目标读者、预计字数、差异化角度。\n禁止与原文标题重复，优先找原文没讲透的空隙。\n\n素材：\n{{knowledge}}' },
+    { label: '关键词扩展', tpl: '围绕以下文章素材，扩展 20 个长尾搜索关键词。\n按搜索意图分组：信息型 / 对比型 / 交易型 / 本地型。\n每行一个词，并在词后用括号标注预估搜索热度（高/中/低）。\n\n素材：\n{{knowledge}}' },
+    { label: '改写润色', tpl: '把下面素材中的核心信息改写成一篇 800 字的中文短文。\n风格：口语化、有具体例子、带一点吐槽，不要书面腔和排比句。\n保留所有数据与事实，删除空洞形容词。输出后另附 3 个备选标题。\n\n素材：\n{{knowledge}}' },
+    { label: '结构拆解', tpl: '拆解以下文章的行文结构，输出：\n1）大纲（按段落层级，标出每段承担的功能：钩子/论证/证据/转折/收束）\n2）可复用的写作模板（填空式，我自己套内容）\n3）它的开头钩子为什么有效，一句话说明\n\n文章素材：\n{{knowledge}}' },
+    { label: '爆款标题', tpl: '针对以下素材，生成 15 个中文标题，分三组各 5 个：\nA 组 数字+利益点；B 组 反常识/冲突；C 组 提问式。\n要求：每个不超过 22 字，不用感叹号，不做夸大承诺。最后挑出你认为点击率最高的 1 个并说明理由。\n\n素材：\n{{knowledge}}' },
+    { label: '小红书风格', tpl: '把下面素材改写成小红书笔记：\n- 标题 20 字内，带 1 个 emoji\n- 正文 300 字内，短段落 + 换行，用 3 个 emoji 做小标题\n- 结尾给 5 个话题标签\n语气像朋友分享经验，不要营销感。\n\n素材：\n{{knowledge}}' },
+    { label: '竞品分析', tpl: '以下是竞品文章清单。请输出竞品分析报告：\n1）内容主线与更新频率推测\n2）反复出现的核心论点（去重后列出）\n3）明显的内容缺口（他们没做但我能做的）\n4）我方可切入的 3 个差异化定位，按投入产出排序\n\n竞品素材：\n{{knowledge}}' },
+    { label: '周报汇报', tpl: '把以下零散素材整理成一份给上级看的周报：\n结构：本周结论（1 句话）→ 关键进展（3 条，带数据）→ 风险与需要的支持 → 下周计划（3 条）。\n只写事实，删除形容词，每条不超过 40 字。\n\n素材：\n{{knowledge}}' },
+    { label: '自定义', tpl: '' }
+  ];
+
+  var pbox = $('presets');
+  PRESETS.forEach(function (p) {
+    var b = document.createElement('button');
+    b.textContent = p.label;
+    b.onclick = function () {
+      pbox.querySelectorAll('button').forEach(function (x) { x.classList.remove('act'); });
+      b.classList.add('act');
+      var tpl = p.tpl.split('{{count}}').join(String(countLines(kEl.value)));
+      if ($('appendMode').checked && pEl.value.trim()) {
+        pEl.value = pEl.value.replace(/\s*$/, '') + '\n\n' + tpl;
+      } else {
+        pEl.value = tpl;
+      }
+      state.prompt = pEl.value; pEl.focus(); save();
+    };
+    pbox.appendChild(b);
+  });
+
+  /* ---------- 写入知识库：自动 / 手动 / 关键词入库共用同一条路径 ---------- */
+  function buildLines(items, fmt) {
+    return items.map(function (it, i) {
+      var t = (it && it.title) || '(无标题)', u = (it && it.url) || '';
+      if (fmt === 'md') return '- [' + t + '](' + u + ')';
+      if (fmt === 'pipe') return t + ' | ' + u;
+      if (fmt === 'two') return t + '\n' + u;
+      return (i + 1) + '. ' + t + '\n   ' + u;
+    });
+  }
+  /* 判重口径：既跟已有知识库比，也跟本批次已保留的比 */
+  function appendKB(items, title) {
+    if (!items || !items.length) return { added: 0, dup: 0 };
+    var exist = kEl.value, dup = 0, kept = [], keptUrl = {};
+    for (var i = 0; i < items.length; i++) {
+      var u = items[i] && items[i].url;
+      if (!u) { kept.push(items[i]); continue; }
+      if (exist.indexOf(u) >= 0 || keptUrl[u]) { dup++; continue; }
+      keptUrl[u] = 1;
+      kept.push(items[i]);
+    }
+    if (!kept.length) return { added: 0, dup: dup };
+    writeHead(buildLines(kept, fmtSel.value), title);
+    return { added: kept.length, dup: dup };
+  }
+  function appendKBText(lines, title) {
+    var exist = kEl.value, dup = 0, kept = [], mark = {};
+    lines.forEach(function (l) {
+      if (!l) return;
+      if (exist.indexOf(l) >= 0 || mark[l]) { dup++; return; }
+      mark[l] = 1;
+      kept.push(l);
+    });
+    if (!kept.length) return { added: 0, dup: dup };
+    writeHead(kept, title);
+    return { added: kept.length, dup: dup };
+  }
+  function writeHead(lines, title) {
+    var head = '\n\n【' + title + ' · ' + new Date().toLocaleString() + '】\n';
+    var add = (kEl.value.trim() ? head : head.replace(/^\n+/, '')) + lines.join('\n');
+    kEl.value = (kEl.value.replace(/\s*$/, '') + add).trim() + '\n';
+    state.kb = kEl.value;
+    stat(); save();
+  }
+
+  /* ---------- 知识库工具 ---------- */
+  $('kDedup').onclick = function () {
+    var seen = {}, out = [];
+    kEl.value.split('\n').forEach(function (l) {
+      var k = l.trim();
+      if (!k) { out.push(l); return; }
+      if (seen[k]) return;
+      seen[k] = 1; out.push(l);
+    });
+    kEl.value = out.join('\n');
+    state.kb = kEl.value; stat(); save();
+    say('collectStatus', '去重完成', 'ok');
+  };
+  $('kClear').onclick = function () {
+    if (!kEl.value || confirm('确定清空知识库？此操作不可撤销。')) {
+      kEl.value = ''; state.kb = ''; stat(); save();
+    }
+  };
+  $('kExport').onclick = function () {
+    if (!kEl.value.trim()) { say('collectStatus', '知识库为空', 'warn'); return; }
+    dl('知识库_' + stamp() + '.txt', kEl.value, 'text/plain;charset=utf-8');
+  };
+  $('kCopy').onclick = function () { copy(kEl.value, '知识库已复制', 'collectStatus'); };
+
+  /* ---------- 提示词工具 ---------- */
+  $('insertK').onclick = function () {
+    var s = pEl.selectionStart || pEl.value.length;
+    pEl.value = pEl.value.slice(0, s) + '{{knowledge}}' + pEl.value.slice(pEl.selectionEnd || s);
+    state.prompt = pEl.value; pEl.focus(); save();
+  };
+  $('pClear').onclick = function () { pEl.value = ''; state.prompt = ''; save(); };
+  $('pCopy').onclick = function () { copy(pEl.value, '提示词已复制', 'collectStatus'); };
+  $('goPrompt').onclick = function () {
+    switchView('prompt');
+    say('collectStatus', '已切到提示词页，「复制最终版」会自动带上知识库内容', 'ok');
+  };
+  $('backKB').onclick = function () { switchView('kb'); };
+  $('pFill').onclick = function () {
+    var t = pEl.value, k = kEl.value.trim();
+    if (t.indexOf('{{knowledge}}') >= 0) {
+      t = t.split('{{knowledge}}').join(k || '（知识库为空）');
+    } else {
+      t = t.replace(/\s*$/, '') + (k ? '\n\n【知识库内容】\n' + k : '');
+    }
+    t = t.split('{{count}}').join(String(countLines(kEl.value)));
+    copy(t, '最终提示词已复制（' + t.length + ' 字）', 'collectStatus');
+  };
+})();
+</script>
+</body>
+</html>

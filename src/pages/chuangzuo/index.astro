@@ -1,0 +1,144 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { SITE } from "../../config";
+
+const TITLE = "关键词采集";
+
+/* 顶部可切换的工具页清单：新增工具只在这里加一行即可 */
+const TOOLS = [
+  { key: "sug-miner",         label: "关键词采集", src: "/h5/chuangzuo/03.html", title: "关键词采集" },
+];
+---
+
+<BaseLayout title={TITLE}>
+  <div class="tools-page">
+    <!-- 顶部切换按钮 -->
+    <div class="tool-tabs" role="tablist">
+      {TOOLS.map((t, i) => (
+        <button
+          type="button"
+          class="tool-tab"
+          class:active={i === 0}
+          role="tab"
+          data-src={t.src}
+          data-tool={t.key}
+          data-title={t.title}
+          aria-selected={i === 0}
+        >{t.label}</button>
+      ))}
+    </div>
+
+    <!-- 唯一 iframe，切换时改 src（默认第一个） -->
+    <iframe
+      id="toolFrame"
+      src={TOOLS[0].src}
+      class="tool-frame"
+      data-tool={TOOLS[0].key}
+      title={TOOLS[0].title}
+    ></iframe>
+  </div>
+</BaseLayout>
+
+<script>
+  /* ============================================================
+     外层 Astro 只做「壳 + 切换」：
+     - 采集逻辑全部在 iframe(01.html / 02.html) 内
+     - iframe 与油猴脚本各自用 BroadcastChannel / GM 存储自行闭环，
+       外层不再转发进度/结果（否则重复投递）
+     - 顶部按钮切换 iframe.src，并同步 data-tool / title
+     - 保留自检：控制台执行 window.__sugPing()
+     ============================================================ */
+
+  const CHANNEL = "sug-miner";
+  // bc 声明在最顶部，避免 TDZ
+  const bc = typeof BroadcastChannel !== "undefined" ? new BroadcastChannel(CHANNEL) : null;
+
+  const frame = document.getElementById("toolFrame");
+  const tabs = Array.from(document.querySelectorAll(".tool-tab"));
+
+  /* 切换嵌套页面：改 src 即重建 iframe，内部脚本会重新初始化 */
+  function switchTool(btn) {
+    if (!frame || !btn || btn.classList.contains("active")) return;
+    tabs.forEach((b) => {
+      b.classList.toggle("active", b === btn);
+      b.setAttribute("aria-selected", b === btn ? "true" : "false");
+    });
+    frame.src = btn.dataset.src;
+    frame.dataset.tool = btn.dataset.tool;
+    frame.title = btn.dataset.title;
+  }
+  tabs.forEach((b) => b.addEventListener("click", () => switchTool(b)));
+
+  function toolFrames() {
+    return Array.from(document.querySelectorAll(".tool-frame"));
+  }
+  function sendToIframe(iframe, msg) {
+    if (!iframe?.contentWindow) return;
+    try { iframe.contentWindow.postMessage(msg, "*"); } catch {}
+  }
+
+  /* 自检：控制台执行 window.__sugPing()，收到 SUG_PONG = 脚本已注入 */
+  window.__sugPing = function () {
+    const msg = { type: "SUG_PING", from: "astro-shell", ts: Date.now() };
+    toolFrames().forEach((f) => sendToIframe(f, msg));
+    try { window.postMessage(msg, "*"); } catch {}
+    if (bc) { try { bc.postMessage(msg); } catch {} }
+    console.log("[astro-shell] SUG_PING 已发出，等待 SUG_PONG ...");
+  };
+
+  /* 只挂一次全局监听：仅记录脚本在线状态，不参与采集数据流 */
+  window.addEventListener("message", (e) => {
+    if (e.data && e.data.type === "SUG_PONG") {
+      console.log(
+        "[astro-shell] 脚本在线 | 环境:",
+        e.data.frame || "?",
+        "| 页面:",
+        e.data.href || ""
+      );
+    }
+  });
+</script>
+
+<style is:global>
+  .tools-page {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 24px 16px 48px;
+  }
+
+  /* 顶部切换按钮栏 */
+  .tool-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .tool-tab {
+    appearance: none;
+    border: 1px solid var(--border-color, #e5e5e5);
+    background: #fff;
+    color: inherit;
+    padding: 8px 18px;
+    font-size: 14px;
+    line-height: 1.4;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background .15s ease, color .15s ease, border-color .15s ease;
+  }
+  .tool-tab:hover {
+    border-color: var(--accent, #333);
+  }
+  .tool-tab.active {
+    background: var(--accent, #111);
+    color: #fff;
+    border-color: var(--accent, #111);
+  }
+
+  .tool-frame {
+    width: 100%;
+    height: 1100px;
+    border: 1px solid var(--border-color, #e5e5e5);
+    border-radius: 8px;
+    background: #fff;
+  }
+</style>
