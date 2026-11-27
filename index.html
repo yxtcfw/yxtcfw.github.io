@@ -23,7 +23,7 @@
 <style>
 :root{
   /* 配色与分站 kaka 对齐：暖米白底 + 朱砂红强调 */
-  --bg:#fbfaf7; --card:#ffffff; --ink:#1f1d1a; --ink2:#5a544b; --hint:#8c857b;
+  --bg:#fbfaf7; --card:#ffffff; --inner:#f6f3ed; --ink:#1f1d1a; --ink2:#5a544b; --hint:#8c857b;
   --line:#e7e2d9; --line2:#d8d1c4; --accent:#c0392b;
   --bg-glass:rgba(251,250,247,.88);
   --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
@@ -31,14 +31,14 @@
   --maxw: 880px; --r: 12px;
 }
 html[data-theme="dark"]{
-  --bg:#16151a; --card:#1d1c22; --ink:#e8e4dd; --ink2:#b8b2a8; --hint:#8f8a82;
+  --bg:#16151a; --card:#1d1c22; --inner:#26242c; --ink:#e8e4dd; --ink2:#b8b2a8; --hint:#8f8a82;
   --line:#2b2830; --line2:#3a3640; --accent:#e0746a; --ok:#7dbb98; --fail:#e0746a;
   --bg-glass:rgba(22,21,26,.88);
 }
 *{box-sizing:border-box}
 body{
   margin:0; background:var(--bg); color:var(--ink);
-  font-family:var(--sans); font-size:14.5px; line-height:1.75;
+  font-family:var(--sans); font-size:14px; line-height:1.75;
   -webkit-font-smoothing:antialiased; -webkit-text-size-adjust:100%;
 }
 a{color:inherit; text-decoration:none}
@@ -73,24 +73,24 @@ main{max-width:var(--maxw); margin:0 auto; padding:18px 20px 70px}
   box-shadow:0 1px 2px rgba(31,29,26,.035)}
 .card-head{display:flex; align-items:baseline; gap:10px; padding-bottom:12px; border-bottom:1px solid var(--line)}
 .card-head h2{font-size:14px; margin:0; font-weight:600; letter-spacing:.02em}
-.card-note{font-size:11.5px; color:var(--hint); margin-left:auto; text-align:right}
+.card-note{font-size:12px; color:var(--hint); margin-left:auto; text-align:right}
 
 /* intro */
 .intro{padding:28px 26px 22px}
 .intro-head{display:flex; align-items:flex-start; gap:16px}
 h1{font-size:30px; line-height:1.15; margin:0 0 6px; font-weight:600; letter-spacing:-.01em}
-.sign{margin:3px 0 0; font-size:13px; line-height:1.75; color:var(--hint)}
+.sign{margin:3px 0 0; font-size:14px; line-height:1.75; color:var(--hint)}
 .solid{flex:none; border:1px solid var(--ink); background:var(--ink); color:var(--bg);
   font-size:12.5px; padding:7px 15px; border-radius:999px; margin-left:auto; transition:opacity .15s}
 .solid:hover{opacity:.82}
 .bio{font-size:14px; line-height:1.85; color:var(--ink2); margin:16px 0 0; max-width:62ch}
 .intro-sec{display:flex; gap:14px; margin-top:15px; align-items:flex-start}
-.intro-label{flex:none; width:30px; padding-top:4px; font-size:11.5px; color:var(--hint); letter-spacing:.04em}
-.intro-sec p{margin:0; font-size:13px; line-height:1.9; color:var(--ink2)}
-.contact{display:flex; flex-wrap:wrap; gap:2px 16px; font-size:13px; color:var(--ink2)}
+.intro-label{flex:none; width:30px; padding-top:4px; font-size:12px; color:var(--hint); letter-spacing:.04em}
+.intro-sec p{margin:0; font-size:14px; line-height:1.9; color:var(--ink2)}
+.contact{display:flex; flex-wrap:wrap; gap:2px 16px; font-size:14px; color:var(--ink2)}
 .contact a{border-bottom:1px solid var(--line2); padding-bottom:1px}
 .contact a:hover{color:var(--accent); border-color:var(--accent)}
-.contact .cv{color:var(--ink2); font-size:13px}
+.contact .cv{color:var(--ink2); font-size:14px}
 .cv i{font-style:normal; font-size:11px; color:var(--hint); margin-left:2px}
 .intro-foot{display:flex; flex-wrap:wrap; gap:6px 18px; margin-top:18px; padding-top:14px;
   border-top:1px solid var(--line); font-size:12.5px; color:var(--ink2)}
@@ -101,7 +101,7 @@ h1{font-size:30px; line-height:1.15; margin:0 0 6px; font-weight:600; letter-spa
 /* 首屏定位 + 关注 CTA */
 .tagline{font-size:18px; line-height:1.5; font-weight:600; letter-spacing:-.01em;
   margin:22px 0 0; color:var(--ink)}
-.pos-desc{font-size:13px; line-height:1.85; color:var(--ink2); margin:9px 0 0; max-width:60ch}
+.pos-desc{font-size:14px; line-height:1.85; color:var(--ink2); margin:9px 0 0; max-width:60ch}
 .hero-act{display:flex; flex-wrap:wrap; align-items:center; gap:9px; margin-top:18px}
 .cta-main{border:1px solid var(--accent); background:var(--accent); color:#fff;
   font-size:13px; font-weight:600; padding:8px 18px; border-radius:999px; transition:opacity .15s}
@@ -112,10 +112,10 @@ h1{font-size:30px; line-height:1.15; margin:0 0 6px; font-weight:600; letter-spa
 
 /* 业务卡 */
 .svc-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:10px; margin-top:14px}
-.svc-card{border:1px solid var(--line); border-radius:10px; padding:14px 15px; background:var(--card);
+.svc-card{border:1px solid var(--line); border-radius:10px; padding:14px 15px; background:var(--inner);
   display:flex; flex-direction:column; gap:7px; transition:border-color .15s}
 .svc-card:hover{border-color:var(--line2)}
-.svc-card h3{margin:0; font-size:13.5px; font-weight:600}
+.svc-card h3{margin:0; font-size:14px; font-weight:600}
 .svc-card .svc-desc{font-size:12px; color:var(--ink2); line-height:1.7; margin:0}
 .svc-card .svc-fit{font-size:11px; color:var(--hint); line-height:1.6; margin-top:auto; padding-top:6px;
   border-top:1px solid var(--line)}
@@ -126,23 +126,23 @@ h1{font-size:30px; line-height:1.15; margin:0 0 6px; font-weight:600; letter-spa
 .case-story .cs-seg{margin-top:11px}
 .case-story .cs-seg b{display:inline-block; font-size:11px; color:var(--accent); font-family:var(--mono);
   border:1px solid var(--line2); border-radius:4px; padding:0 6px; margin-right:7px; vertical-align:1px}
-.case-story .cs-seg span{font-size:13px; line-height:1.8; color:var(--ink2)}
-.monitor-note{font-size:12.5px; line-height:1.8; color:var(--ink2); margin:0 0 2px; max-width:62ch}
+.case-story .cs-seg span{font-size:14px; line-height:1.8; color:var(--ink2)}
+.monitor-note{font-size:13px; line-height:1.8; color:var(--ink2); margin:0 0 2px; max-width:62ch}
 
 /* 路径说明条 */
 .pathline{display:flex; flex-wrap:wrap; align-items:center; gap:7px; padding:12px 0 4px;
-  font-size:11.5px; color:var(--hint); font-family:var(--mono)}
+  font-size:12px; color:var(--hint); font-family:var(--mono)}
 .pathline b{font-weight:400; color:var(--ink2)}
 .row .pathline{padding:8px 0 2px}
 
 /* 项目卡排版 */
 .p-top{display:flex; align-items:center; gap:8px; margin-bottom:10px}
 .p-top > :last-child{margin-left:auto}
-.p-no{font-family:var(--mono); font-size:10.5px; color:var(--hint); letter-spacing:.04em}
+.p-no{font-family:var(--mono); font-size:11px; color:var(--hint); letter-spacing:.04em}
 .p-foot{margin-top:15px; display:flex; align-items:center; gap:8px; flex-wrap:wrap}
 .proj-intro{margin-top:4px}
-.proj-intro h3{font-size:17px; margin:0 0 9px; font-weight:600; letter-spacing:-.01em; line-height:1.35}
-.proj-intro > p{font-size:13px; line-height:1.8; color:var(--ink2); margin:0}
+.proj-intro h3{font-size:18px; margin:0 0 9px; font-weight:600; letter-spacing:-.01em; line-height:1.35}
+.proj-intro > p{font-size:14px; line-height:1.8; color:var(--ink2); margin:0}
 #status-sync:not(:empty){margin-left:10px}
 .pathline i{font-style:normal; color:var(--line2)}
 
@@ -150,15 +150,15 @@ h1{font-size:30px; line-height:1.15; margin:0 0 6px; font-weight:600; letter-spa
 .row{display:grid; grid-template-columns:52px 1fr auto; gap:12px; padding:16px 0;
   border-bottom:1px solid var(--line); align-items:start; transition:opacity .15s}
 [data-group] > .row:last-child{border-bottom:0}
-.row-no{font-family:var(--mono); font-size:10.5px; color:var(--hint); padding-top:4px}
-.row h3{font-size:14.5px; margin:0 0 4px; font-weight:600; display:flex; align-items:center; gap:8px; flex-wrap:wrap}
-.row p{margin:0; font-size:13px; line-height:1.78; color:var(--ink2)}
-.row-foot{margin-top:7px; display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-size:11.5px; color:var(--hint)}
+.row-no{font-family:var(--mono); font-size:11px; color:var(--hint); padding-top:4px}
+.row h3{font-size:14px; margin:0 0 4px; font-weight:600; display:flex; align-items:center; gap:8px; flex-wrap:wrap}
+.row p{margin:0; font-size:14px; line-height:1.78; color:var(--ink2)}
+.row-foot{margin-top:7px; display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-size:12px; color:var(--hint)}
 .tag{font-size:11px; color:var(--hint); white-space:nowrap}
 .tag.on{color:var(--accent)}
 .tag + .tag::before{content:"/"; margin-right:8px; color:var(--line2)}
 .path{font-family:var(--mono); font-size:11px; color:var(--hint); background:var(--line); padding:0 6px; border-radius:4px}
-.row-go{font-family:var(--mono); font-size:11.5px; color:var(--hint); text-align:right; padding-top:4px; white-space:nowrap}
+.row-go{font-family:var(--mono); font-size:12px; color:var(--hint); text-align:right; padding-top:4px; white-space:nowrap}
 a.row:hover h3, a.row:hover .row-go{color:var(--accent)}
 a.row.wait{cursor:default}
 a.row.wait .row-go{color:var(--line2)}
@@ -167,61 +167,64 @@ a.row.wait .row-go{color:var(--line2)}
 .grid-head{display:flex; align-items:center; gap:8px; margin:16px 0 8px}
 .grid-head h3{margin:0; font-size:12px; font-weight:600; color:var(--ink2)}
 .grid-head .line{flex:1; height:1px; background:var(--line)}
-.sync{font-size:10.5px; color:var(--hint); font-family:var(--mono)}
+.sync{font-size:11px; color:var(--hint); font-family:var(--mono)}
 .site-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:10px; margin-top:12px}
-.site-card{border:1px solid var(--line); border-radius:10px; padding:14px 15px; background:var(--card);
-  display:flex; flex-direction:column; gap:9px; transition:border-color .15s}
+.site-card{border:1px solid var(--line); border-radius:10px; padding:14px 15px; background:var(--inner);
+  display:flex; flex-direction:column; gap:11px; transition:border-color .15s}
 .site-card:hover{border-color:var(--line2)}
-.site-card h3{margin:0; font-size:13.5px; font-weight:600}
+.site-card h3{margin:0; font-size:14px; font-weight:600}
 .site-card p{margin:0; font-size:12px; color:var(--hint); line-height:1.6}
 .site-card:hover h3{color:var(--accent)}
+/* 3 组：头部 / 指标 / 操作，组间用细线分隔，不再逐块堆叠 */
+.sc-head{display:flex; flex-direction:column; gap:6px}
+.sc-body{display:flex; flex-direction:column; gap:7px; padding-top:9px; border-top:1px solid var(--line)}
 .site-card .sc-top{display:flex; align-items:center; gap:8px}
-.site-card .sc-name{font-size:13.5px; font-weight:600; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.site-card .sc-name{font-size:14px; font-weight:600; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
 .sc-dot{flex:none; width:7px; height:7px; border-radius:50%; background:var(--hint)}
 .sc-dot.ok{background:#2e9e5b}
 html[data-theme="dark"] .sc-dot.ok{background:var(--ok)}
 .sc-dot.fail{background:#d23f2c}
 html[data-theme="dark"] .sc-dot.fail{background:var(--fail)}
 .sc-dot.wait{background:var(--line2)}
-.sc-state{margin-left:auto; flex:none; font-size:10.5px; font-family:var(--mono); color:var(--hint)}
+.sc-state{margin-left:auto; flex:none; font-size:11px; font-family:var(--mono); color:var(--hint)}
 .sc-state.ok{color:#2e9e5b}
 .sc-state.fail{color:#d23f2c}
-.site-card .sc-foot{margin-top:auto; display:flex; align-items:center; gap:8px; padding-top:2px}
+.site-card .sc-foot{margin-top:auto; display:flex; align-items:center; gap:8px; padding-top:9px; border-top:1px solid var(--line)}
 .sc-link{font-size:11px; color:var(--accent); border:1px solid var(--line2); border-radius:999px;
   padding:2px 9px; transition:.15s; flex:none}
 .sc-link:hover{border-color:var(--accent)}
-.sc-run{font-size:10px; color:var(--hint); font-family:var(--mono); margin-left:auto;
+.sc-run{font-size:11px; color:var(--hint); font-family:var(--mono); margin-left:auto;
   white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0}
 .site-empty{font-size:12px; color:var(--hint); padding:14px 0}
 
 /* 站点状态：平铺网格，不分组不轮播 */
-.site-card .sc-blurb{font-size:11.5px; color:var(--hint); line-height:1.65; min-height:2em;
+.site-card .sc-blurb{font-size:12px; color:var(--hint); line-height:1.65; min-height:2em;
   display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden}
 @media (max-width:520px){.site-grid{grid-template-columns:1fr}}
 
 /* 站点卡：完整运行指标 */
 .sc-mods{display:flex; gap:5px; flex-wrap:wrap; margin-top:-2px}
-.sc-mod{font-size:9.5px; font-family:var(--mono); color:var(--hint); border:1px solid var(--line);
+.sc-mod{font-size:11px; font-family:var(--mono); color:var(--hint); border:1px solid var(--line);
   border-radius:4px; padding:1px 6px; line-height:1.5}
 .sc-summary{display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-size:11px;
   color:var(--ink2); font-family:var(--mono)}
 .sc-summary b{font-weight:600; color:var(--accent)}
 .sc-metrics{margin-top:2px; display:grid; grid-template-columns:repeat(2,1fr); gap:5px 10px;
-  font-size:10.5px; color:var(--hint); font-family:var(--mono)}
+  font-size:11px; color:var(--hint); font-family:var(--mono)}
 .sc-metrics i{font-style:normal; color:var(--ink2)}
-.sc-warn{font-size:10.5px; line-height:1.6; color:#a8651b; background:rgba(168,101,27,.08);
+.sc-warn{font-size:11px; line-height:1.6; color:#a8651b; background:rgba(168,101,27,.08);
   border-radius:6px; padding:5px 8px}
 html[data-theme="dark"] .sc-warn{color:#e0a860; background:rgba(224,168,96,.1)}
 .sc-warn b{font-weight:600}
 .sc-foot .sc-link.runlink{color:var(--ink2)}
 
-.empty{display:none; padding:22px 0; font-size:12.5px; color:var(--hint)}
+.empty{display:none; padding:22px 0; font-size:12px; color:var(--hint)}
 .empty.on{display:block}
 [data-sec].no-hit > *:not(.empty){display:none}
 [data-sec].no-hit > .empty{display:block}
 
 footer{max-width:var(--maxw); margin:0 auto; padding:26px 20px 0;
-  font-size:11.5px; color:var(--hint); line-height:1.9; display:flex; justify-content:space-between; gap:14px; flex-wrap:wrap}
+  font-size:12px; color:var(--hint); line-height:1.9; display:flex; justify-content:space-between; gap:14px; flex-wrap:wrap}
 
 #toast{position:fixed; left:50%; bottom:24px; transform:translate(-50%, 12px); opacity:0; pointer-events:none;
   background:var(--ink); color:var(--bg); font-size:12px; padding:8px 16px; border-radius:7px;
@@ -253,18 +256,18 @@ footer{max-width:var(--maxw); margin:0 auto; padding:26px 20px 0;
   .card{padding:16px 15px; border-radius:10px}
   .intro{padding:20px 16px 18px}
   h1{font-size:25px}
-  .sign{font-size:12.5px}
-  .bio{font-size:13.5px}
+  .sign{font-size:13px}
+  .bio{font-size:14px}
   .solid{padding:6px 12px; font-size:12px}
   .row{grid-template-columns:32px 1fr; gap:10px}
-  .row p{font-size:13px}
+  .row p{font-size:14px}
   .proj-intro h3{font-size:16px}
-  .proj-intro > p{font-size:13px}
+  .proj-intro > p{font-size:14px}
   .row-go{grid-column:2; text-align:left; padding-top:2px}
   /* 卡头副标题：窄屏隐藏长说明，但运行状态摘要保留 */
   .card-note{display:inline}
   .sc-metrics{grid-template-columns:repeat(2,1fr)}
-  footer{padding:22px 16px 0; font-size:11.5px}
+  footer{padding:22px 16px 0; font-size:12px}
 }
 @media (max-width:400px){
   /* 超窄屏：顶栏工具区搜索框收为图标宽，进一步保导航空间 */
@@ -282,7 +285,8 @@ footer{max-width:var(--maxw); margin:0 auto; padding:26px 20px 0;
     <a class="brand" href="#top">宇轩<em>index</em></a>
     <nav class="nav">
       <a href="#services">业务</a>
-      <a href="#projects">项目 / 运行状态</a>
+      <a href="#projects">项目</a>
+      <a href="#monitor">运行状态</a>
     </nav>
     <div class="topbar-tools">
       <button id="theme" class="icon-btn" aria-label="切换主题" title="切换主题">◐</button>
@@ -337,13 +341,12 @@ footer{max-width:var(--maxw); margin:0 auto; padding:26px 20px 0;
     <div class="svc-grid" id="svc-grid"></div>
   </section>
 
-  <!-- 项目（站点运行状态并入此卡） -->
+  <!-- 项目：案例故事 -->
   <section class="card" id="projects" data-sec>
     <div class="card-head"><h2>项目</h2>
-      <span class="card-note"><span id="status-note">从主站配置读取</span><span class="sync" id="status-sync"></span></span>
+      <span class="card-note">自动内容流水线</span>
     </div>
 
-    <!-- 项目介绍：案例故事（挑战/做法/成果） -->
     <div class="proj-intro case-story">
       <div class="p-top">
         <span class="p-no" id="proj-no">001</span>
@@ -357,9 +360,13 @@ footer{max-width:var(--maxw); margin:0 auto; padding:26px 20px 0;
         <span class="tag">Python</span><span class="tag">Actions</span><span class="tag">Eleventy</span><span class="tag">Pages</span>
       </div>
     </div>
+  </section>
 
-    <!-- 数字资产实时运行：读取各站 status.json，纯静态跨域 -->
-    <div class="grid-head"><h3 id="monitor-title">数字资产实时运行</h3><div class="line"></div></div>
+  <!-- 数字资产实时运行：独立卡，纯静态跨域读取 status.json -->
+  <section class="card" id="monitor" data-sec>
+    <div class="card-head"><h2 id="monitor-title">数字资产实时运行</h2>
+      <span class="card-note"><span id="status-note">从主站配置读取</span><span class="sync" id="status-sync"></span></span>
+    </div>
     <p class="monitor-note" id="monitor-note">下面是这条流水线每天自动运转的真实记录。它不只是一张监控表，而是「被动收益能不能自动跑起来」的活证据。</p>
     <div class="site-grid" id="site-grid"><div class="site-empty">读取中…</div></div>
   </section>
@@ -697,8 +704,10 @@ footer{max-width:var(--maxw); margin:0 auto; padding:26px 20px 0;
     var ok = st.result === 'success', fail = st.result === 'failed';
 
     var card = document.createElement('div'); card.className = 'site-card';
+    var head = document.createElement('div'); head.className = 'sc-head';
+    var body = document.createElement('div'); body.className = 'sc-body';
 
-    // 顶部：状态点 + 名称 + 结论
+    // 组1 头部：状态点 + 名称 + 结论 + 模块标签
     var top = document.createElement('div'); top.className = 'sc-top';
     var dot = document.createElement('span');
     dot.className = 'sc-dot ' + (!enabled ? 'wait' : (ok ? 'ok' : (fail ? 'fail' : 'wait')));
@@ -708,16 +717,9 @@ footer{max-width:var(--maxw); margin:0 auto; padding:26px 20px 0;
     state.className = 'sc-state ' + (ok ? 'ok' : (fail ? 'fail' : ''));
     state.textContent = !enabled ? '已停用' : (ok ? '正常' : (fail ? '异常' : '待运行'));
     top.appendChild(dot); top.appendChild(name); top.appendChild(state);
-    card.appendChild(top);
+    head.appendChild(top);
 
-    // 站点简述：来自 sites.json 自身配置
-    var blurb = s.tagline || s.description || '';
-    if(blurb){
-      var bp = document.createElement('p'); bp.className = 'sc-blurb'; bp.textContent = blurb;
-      card.appendChild(bp);
-    }
-
-    // 模块标签：显示全部启用模块（归组只用主模块，这里补全）
+    // 模块标签：显示全部启用模块，收进头部组
     var mods = row.modules || [];
     if(mods.length){
       var mw = document.createElement('div'); mw.className = 'sc-mods';
@@ -727,10 +729,17 @@ footer{max-width:var(--maxw); margin:0 auto; padding:26px 20px 0;
         tag.title = m;
         mw.appendChild(tag);
       });
-      card.appendChild(mw);
+      head.appendChild(mw);
+    }
+    card.appendChild(head);
+
+    // 组2 指标：站点简述 / 运行摘要 / 关键指标 / 降级提示
+    var blurb = s.tagline || s.description || '';
+    if(blurb){
+      var bp = document.createElement('p'); bp.className = 'sc-blurb'; bp.textContent = blurb;
+      body.appendChild(bp);
     }
 
-    // 运行摘要：页数 / AI / 模型（收敛为数量+悬停全名）/ 更新时间
     var sum = document.createElement('div'); sum.className = 'sc-summary';
     var bits = [];
     if(st.pages != null) bits.push(st.pages + ' 页');
@@ -749,9 +758,8 @@ footer{max-width:var(--maxw); margin:0 auto; padding:26px 20px 0;
       var ts = fmtTime(st.last_run_at);
       if(ts){ onTime(new Date(st.last_run_at).getTime()); sum.appendChild(document.createTextNode('更新 ' + ts)); }
     }
-    if(sum.childNodes.length) card.appendChild(sum);
+    if(sum.childNodes.length) body.appendChild(sum);
 
-    // 关键指标：生成/拦截/信源/独立域/回流/prune/漂移
     var c = st.counts || {};
     var metrics = [
       ['生成', c.generated], ['门禁拦截', c.gateBlocked],
@@ -767,10 +775,9 @@ footer{max-width:var(--maxw); margin:0 auto; padding:26px 20px 0;
         var v = document.createElement('i'); v.textContent = String(m[1]);
         cell.appendChild(v); mg.appendChild(cell);
       });
-      card.appendChild(mg);
+      body.appendChild(mg);
     }
 
-    // 降级提示：有 degradations 时显示条数，原因不直接铺到卡片（数据已脱敏，但仍收敛展示）
     if(Array.isArray(st.degradations) && st.degradations.length){
       var w = document.createElement('div'); w.className = 'sc-warn';
       var wb = document.createElement('b'); wb.textContent = '采集降级 ' + st.degradations.length + ' 项';
@@ -778,10 +785,11 @@ footer{max-width:var(--maxw); margin:0 auto; padding:26px 20px 0;
       var reasons = st.degradations.map(function(d){ return d.stage + ': ' + (d.reason||''); }).join(' ｜ ').slice(0, 200);
       w.title = reasons;
       w.appendChild(document.createTextNode(' · 悬停看原因'));
-      card.appendChild(w);
+      body.appendChild(w);
     }
+    if(body.childNodes.length) card.appendChild(body);
 
-    // 底部：进入站点 + 查看本次运行（run_url 真实链接）
+    // 组3 操作：进入站点 + 查看本次运行（run_url 真实链接）
     var foot = document.createElement('div'); foot.className = 'sc-foot';
     var link = document.createElement('a');
     link.className = 'sc-link'; link.href = href; link.target = '_blank'; link.rel = 'noopener';
