@@ -1,0 +1,49 @@
+{
+  "schema_version": "1.0.0",
+  "site_id": "kaka",
+  "last_run_at": "2026-11-25T05:10:37Z",
+  "result": "success",
+  "config_sha256": "eb58158aa687199ac5a0fec12372ad15a5b41e57bb98ec55b044f013df09bfac",
+  "global_sha256": {},
+  "composition": {
+    "modules": [
+      "blog",
+      "resource",
+      "nav"
+    ],
+    "order": [
+      "blog",
+      "resource",
+      "nav"
+    ],
+    "render": "both",
+    "module_options": {
+      "blog": {
+        "show_summary": true,
+        "quotes_max": 3
+      },
+      "resource": {
+        "max": 6,
+        "verify_url": true
+      },
+      "nav": {
+        "max": 12,
+        "verify_url": true
+      },
+      "comments": {
+        "count": [
+          2,
+          3
+        ],
+        "persona_source": "sign"
+      }
+    }
+  },
+  "ai_calls": 1,
+  "pages": 9,
+  "floors": 15,
+  "words": 1074,
+  "model": "inclusionai/ling-3.2-flash:free",
+  "error": "",
+  "run_url": "https://github.com/yxtcfw/kaka/actions/runs/45551723777"
+}

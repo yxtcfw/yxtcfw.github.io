@@ -1,0 +1,182 @@
+{
+  "schema_version": "1.0.0",
+  "updated_at": "2026-11-22T08:00:00Z",
+  "site": {
+    "id": "kaka",
+    "name": "卡卡流量卡",
+    "tagline": "专注于流量卡的长篇帖子。",
+    "description": "专注于流量卡的长篇帖子，解决流量卡相关的所有问题。",
+    "notice": "内容由 GitHub Actions 每日自动更新，仅供参考，办理请以运营商官方信息为准。",
+    "author": "卡卡",
+    "base_path": "/kaka/",
+    "base_url": "https://yxtcfw.cn/kaka/",
+    "footer": "由 GitHub Actions 每天自动生成",
+    "lang": "zh-CN"
+  },
+  "keywords": {
+    "cores": [
+      "流量卡测评",
+      "流量卡推荐",
+      "流量卡办理",
+      "流量卡排行",
+      "流量卡教程"
+    ],
+    "modifiers": [],
+    "engines": [
+      "baidu",
+      "bing"
+    ],
+    "picked": [
+      "流量卡怎么办理才划算",
+      "限速后的卡还能救吗",
+      "异地号码补卡要多久"
+    ],
+    "frozen_at": "2026-11-22T08:00:00Z",
+    "policy": "picked_only"
+  },
+  "sources": [
+    {
+      "name": "阮一峰周刊",
+      "type": "rss",
+      "url": "https://www.ruanyifeng.com/blog/atom.xml",
+      "weight": 1.6,
+      "enabled": false,
+      "server_fetchable": true
+    },
+    {
+      "name": "Solidot",
+      "type": "rss",
+      "url": "https://www.solidot.org/index.rss",
+      "weight": 1.3,
+      "enabled": false,
+      "server_fetchable": true
+    },
+    {
+      "name": "少数派",
+      "type": "json",
+      "url": "https://sspai.com/api/v1/article/index/page/get?limit=20&offset=0",
+      "items_path": "data",
+      "id_field": "id",
+      "url_template": "https://sspai.com/post/{id}",
+      "fields": {
+        "title": "title",
+        "summary": "summary",
+        "date": "released_time"
+      },
+      "weight": 1.4,
+      "enabled": false,
+      "server_fetchable": true
+    },
+    {
+      "name": "Hacker News",
+      "type": "rss",
+      "url": "https://hnrss.org/frontpage",
+      "weight": 1.1,
+      "enabled": false,
+      "server_fetchable": true
+    },
+    {
+      "name": "卡卡流量卡",
+      "type": "json",
+      "url": "https://h5api.lot-ml.com/api/ProductEn/Index2?Id=c8570adcb7030e9b&title=&Province=%E5%85%A8%E5%9B%BD&City=%E5%85%A8%E5%9B%BD&PriceTime=%E4%BC%98%E6%83%A0%E6%97%B6%E9%97%B4&LiuLiang=%E5%8F%AF%E7%94%A8%E6%B5%81%E9%87%8F&Tonghua=%E9%80%9A%E8%AF%9D%E6%97%B6%E9%95%BF&Operator=%E7%B2%BE%E9%80%89&page=1&limit=50",
+      "items_path": "data",
+      "fields": {
+        "title": "name",
+        "url": "shareUrl",
+        "summary": "taocan"
+      },
+      "weight": 0.7,
+      "enabled": true,
+      "server_fetchable": true
+    },
+    {
+      "name": "36氪",
+      "type": "rss",
+      "url": "https://36kr.com/feed",
+      "weight": 0.9,
+      "enabled": false,
+      "server_fetchable": true,
+      "_note": "返回反爬 HTML 不是 RSS，保持禁用"
+    },
+    {
+      "name": "知乎热榜",
+      "type": "json",
+      "url": "https://api.zhihu.com/topstory/hot-list?limit=50",
+      "items_path": "data",
+      "fields": {
+        "title": "target.title",
+        "url": "target.url",
+        "summary": "target.excerpt"
+      },
+      "weight": 1.2,
+      "enabled": false,
+      "server_fetchable": true
+    },
+    {
+      "name": "示例列表页",
+      "type": "html",
+      "url": "https://example.com/news",
+      "base": "https://example.com",
+      "must_include": "/news/",
+      "limit": 30,
+      "weight": 1.0,
+      "enabled": false,
+      "server_fetchable": true
+    }
+  ],
+  "window_hours": 48,
+  "search": {
+    "provider": "none",
+    "searxng_url": "",
+    "max_results": 8
+  },
+  "ai": {
+    "provider": "openrouter",
+    "secret_ref": "OPENROUTER_API_KEY",
+    "model_policy": "free_only",
+    "writing": {
+      "lead_mode": "none",
+      "fixed_lead": "",
+      "lead_words": [
+        300,
+        600
+      ],
+      "unit_count": [
+        70,
+        100
+      ],
+      "unit_words": [
+        40,
+        120
+      ],
+      "content_requirements": "每条建议必须说明适用的运营商/地区或套餐前提，不能把个别卡的描述当成全国通用结论。"
+    },
+    "request_policy": {
+      "max_calls_per_run": 1,
+      "terms_mode": "script",
+      "fallback_no_extra_call": true
+    }
+  },
+  "composition": {
+    "modules": ["blog", "resource", "nav"],
+    "order": ["blog", "resource", "nav"],
+    "render": "both",
+    "module_options": {
+      "blog": { "show_summary": true, "quotes_max": 3 },
+      "resource": { "max": 6, "verify_url": true },
+      "nav": { "max": 12, "verify_url": true },
+      "comments": { "count": [2, 3], "persona_source": "sign" }
+    }
+  },
+  "shared": {
+    "names": "global/names.json",
+    "ads": "global/ads.json",
+    "ads_per_page": 2,
+    "use_names": true,
+    "use_ads": true
+  },
+  "runtime": {
+    "forbid_browser_cache": true,
+    "status_file": "status/kaka.json"
+  }
+}
