@@ -1,20 +1,12 @@
 {
-  "schema_version": "1.0.0",
-  "updated_at": "2026-11-22T08:00:00Z",
-  "defaults": {
-    "base_domain": "https://yxtcfw.cn",
-    "fetch": {
-      "timeout_seconds": 25
-    }
-  },
   "sites": [
     {
       "id": "kaka",
       "name": "卡卡流量卡",
+      "tagline": "专注于流量卡的长篇帖子，解决流量卡相关的所有问题。",
       "modules": ["blog", "resource", "nav"],
       "path": "/kaka/",
       "enabled": true,
-      "config_file": "sites/kaka.json",
       "status_url": "https://kaka.yxtcfw.cn/status.json"
     }
   ]

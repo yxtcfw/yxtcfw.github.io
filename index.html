@@ -676,8 +676,7 @@ footer{max-width:var(--maxw); margin:0 auto; padding:26px 20px 0;
       if(secS) secS.classList.toggle('hide', !sc.childNodes.length);
     }
   }
-  getJSON('docs/config/profile.json')
-    .catch(function(){ return getJSON('config/profile.json'); })
+  getJSON('config/profile.json')
     .then(renderProfile)
     .catch(function(){ /* 读取失败时保留页面静态真实兜底 */ });
 
@@ -711,9 +710,8 @@ footer{max-width:var(--maxw); margin:0 auto; padding:26px 20px 0;
     top.appendChild(dot); top.appendChild(name); top.appendChild(state);
     card.appendChild(top);
 
-    // 站点简述
-    var dsite = (row.detail && row.detail.site) || {};
-    var blurb = dsite.tagline || dsite.description || s.tagline || s.description || '';
+    // 站点简述：来自 sites.json 自身配置
+    var blurb = s.tagline || s.description || '';
     if(blurb){
       var bp = document.createElement('p'); bp.className = 'sc-blurb'; bp.textContent = blurb;
       card.appendChild(bp);
@@ -807,14 +805,11 @@ footer{max-width:var(--maxw); margin:0 auto; padding:26px 20px 0;
       return;
     }
     var tasks = sites.map(function(s){
-      var id = s.id || '';
-      var localStUrl = 'config/status/' + id + '.json';
-      var stUrl = s.status_url || localStUrl;
-      var cfgUrl = 'docs/config/' + (s.config_file || ('sites/' + id + '.json'));
-      return Promise.all([
-        getJSON(stUrl).catch(function(){ return stUrl === localStUrl ? null : getJSON(localStUrl).catch(function(){ return null; }); }),
-        getJSON(cfgUrl).catch(function(){ return null; })
-      ]).then(function(r){ return { site: s, status: r[0], detail: r[1] }; });
+      // 状态只读站点自身的 status_url（跨域），不再有本地快照降级
+      var stUrl = s.status_url || '';
+      return (stUrl ? getJSON(stUrl) : Promise.resolve(null))
+        .catch(function(){ return null; })
+        .then(function(st){ return { site: s, status: st }; });
     });
     Promise.all(tasks).then(function(rows){
       if(grid) grid.innerHTML = '';
@@ -822,7 +817,7 @@ footer{max-width:var(--maxw); margin:0 auto; padding:26px 20px 0;
 
       // 平铺：不再按主模块分组，站点卡直接进入网格，避免同一站点重复出现
       rows.forEach(function(row){
-        var comp = (row.detail && row.detail.composition) || (row.status && row.status.composition) || {};
+        var comp = (row.status && row.status.composition) || {};
         var mods = (comp.modules || []).slice();
         if(!mods.length && row.site.modules) mods = row.site.modules.slice();
         if(!mods.length) mods = ['blog'];
@@ -838,9 +833,7 @@ footer{max-width:var(--maxw); margin:0 auto; padding:26px 20px 0;
   }
 
   function loadSiteGroup(){
-    // 优先读发布产物 sites.json（与 manifest 同源），失败再退回源 config/
-    getJSON('docs/config/sites.json')
-      .catch(function(){ return getJSON('config/sites.json'); })
+    getJSON('config/sites.json')
       .then(function(cfg){
         renderSites(cfg && cfg.sites || []);
         if($('#status-note')) $('#status-note').textContent = '共 ' + ((cfg&&cfg.sites)||[]).length + ' 个站点';
